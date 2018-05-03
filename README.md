@@ -4,6 +4,8 @@
 ### Note
 This library is derived from `github.com/nerdylikeme/go-gocosmosdb`(github.com/nerdylikeme/go-gocosmosdb)
 
+TODO: Add documentation on stored procedurs and user defined functions
+
 ## Table of contents:
 - [Get Started](#get-started)
 - [Examples](#examples)
@@ -49,6 +51,7 @@ This library is derived from `github.com/nerdylikeme/go-gocosmosdb`(github.com/n
 ```bash
 $ go get github.com/intwineapp/gocosomsdb
 ```
+[TOC](#Table_of_contents)
 
 #### Add to your project
 ```go
@@ -66,6 +69,7 @@ func main() {
 	fmt.Println(dbs)
 }
 ```
+[TOC](#Table_of_contents)
 
 ### Databases
 
@@ -77,6 +81,7 @@ if err != nil {
 }
 fmt.Println(db.Self, db.Id)
 ```
+[TOC](#Table_of_contents)
 
 #### QueryDatabases
 ```go
@@ -86,8 +91,9 @@ if err != nil {
 }
 for _, db := range dbs {
 	fmt.Println("DB Name:", db.Id)
-
+}
 ```
+[TOC](#Table_of_contents)
 
 #### ReadDatabases
 ```go
@@ -99,6 +105,7 @@ for _, db := range dbs {
 	fmt.Println("DB Name:", db.Id)
 }
 ```
+[TOC](#Table_of_contents)
 
 #### CreateDatabase
 ```go
@@ -114,6 +121,7 @@ var db gocosmosdb.Database
 db.Id = "test"
 db, err = client.CreateDatabase(&db)
 ```
+[TOC](#Table_of_contents)
 
 #### ReplaceDatabase
 ```go
@@ -128,6 +136,7 @@ fmt.Println(db)
 var db gocosmosdb.Database
 db, err = client.ReplaceDatabase("self_link", &db)
 ```
+[TOC](#Table_of_contents)
 
 #### DeleteDatabase
 ```go
@@ -136,6 +145,7 @@ if err != nil {
 	log.Fatal(err)	
 }
 ```
+[TOC](#Table_of_contents)
 
 ### Collections
 
@@ -147,6 +157,7 @@ if err != nil {
 }
 fmt.Println(coll.Self, coll.Id)
 ```
+[TOC](#Table_of_contents)
 
 #### QueryCollections
 ```go
@@ -158,6 +169,7 @@ for _, coll := range colls {
 	fmt.Println("Collection Name:", coll.Id)
 }
 ```
+[TOC](#Table_of_contents)
 
 #### ReadCollections
 ```go
@@ -169,6 +181,7 @@ for _, coll := range colls {
 	fmt.Println("Collection Name:", coll.Id)
 }
 ```
+[TOC](#Table_of_contents)
 
 #### CreateCollection
 ```go
@@ -184,6 +197,7 @@ var coll gocosmosdb.Collection
 coll.Id = "test"
 coll, err = client.CreateCollection("db_self_link", &coll)
 ```
+[TOC](#Table_of_contents)
 
 #### DeleteCollection
 ```go
@@ -192,6 +206,7 @@ if err != nil {
 	log.Fatal(err)	
 }
 ```
+[TOC](#Table_of_contents)
 
 ### Documents
 
@@ -213,6 +228,7 @@ func main() {
 	fmt.Println("Document Name:", doc.Name)
 }
 ```
+[TOC](#Table_of_contents)
 
 #### QueryDocuments
 ```go
@@ -234,6 +250,7 @@ func main() {
 	}
 }
 ```
+[TOC](#Table_of_contents)
 
 #### ReadDocuments
 ```go
@@ -255,6 +272,7 @@ func main() {
 	}
 }
 ```
+[TOC](#Table_of_contents)
 
 #### CreateDocument
 ```go
@@ -279,6 +297,7 @@ func main() {
 	fmt.Print("Name:", user.Name, "Email:", user.Email)
 }
 ```
+[TOC](#Table_of_contents)
 
 #### ReplaceDocument
 ```go
@@ -299,6 +318,7 @@ func main() {
 	fmt.Print("Is Admin:", user.IsAdmin)
 }
 ```
+[TOC](#Table_of_contents)
 
 #### DeleteDocument
 ```go
@@ -307,6 +327,39 @@ if err != nil {
 	log.Fatal(err)	
 }
 ```
+[TOC](#Table_of_contents)
+
+### StoredProcedures
+
+#### ReadStoredProcedure
+```go
+client.ReadStoredProcedure()
+```
+[TOC](#Table_of_contents)
+
+#### QueryStoredProcedure
+```go
+client.QueryStoredProcedure()
+```
+[TOC](#Table_of_contents)
+
+#### CreateStoredProcedure
+```go
+client.ReadStoredProcedure()
+```
+[TOC](#Table_of_contents)
+
+#### ReplaceStoredProcedure
+```go
+client.ReplaceStoredProcedure()
+```
+[TOC](#Table_of_contents)
+
+#### DeleteStoredProcedure
+```go
+client.DeleteStoredProcedure()
+```
+[TOC](#Table_of_contents)
 
 #### ExecuteStoredProcedure
 ```go
@@ -316,3 +369,36 @@ if err != nil {
 	log.Fatal(err)
 }
 ```
+[TOC](#Table_of_contents)
+
+### UserDefinedFunctions
+
+#### ReadUserDefinedFunction
+```go
+client.ReadUserDefinedFunction()
+```
+[TOC](#Table_of_contents)
+
+#### QueryUserDefinedFunction
+```go
+client.QueryUserDefinedFunction()
+```
+[TOC](#Table_of_contents)
+
+#### CreateUserDefinedFunction
+```go
+client.ReadUserDefinedFunction()
+```
+[TOC](#Table_of_contents)
+
+#### ReplaceUserDefinedFunction
+```go
+client.ReplaceUserDefinedFunction()
+```
+[TOC](#Table_of_contents)
+
+#### DeleteUserDefinedFunction
+```go
+client.DeleteUserDefinedFunction()
+```
+[TOC](#Table_of_contents)
