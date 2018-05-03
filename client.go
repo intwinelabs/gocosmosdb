@@ -16,12 +16,24 @@ type Clienter interface {
 	Create(link string, body, ret interface{}) error
 	Replace(link string, body, ret interface{}) error
 	Execute(link string, body, ret interface{}) error
+	GetURI() string
+	GetConfig() Config
 }
 
 type Client struct {
 	Url    string
 	Config Config
 	http.Client
+}
+
+// GetURI return a clients URI
+func (c *Client) GetURI() string {
+	return c.Url
+}
+
+// GetConfig return a clients URI
+func (c *Client) GetConfig() Config {
+	return c.Config
 }
 
 // Read resource by self link
@@ -97,12 +109,12 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 func (c *Client) do(r *Request, status int, data interface{}) error {
 	resp, err := c.Do(r.Request)
 	if err != nil {
-		return fmt.Errorf("Request: %+v, Error: %s", r, err)
+		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
 	}
 	if resp.StatusCode != status {
 		err = &RequestError{}
 		readJson(resp.Body, &err)
-		return fmt.Errorf("Request: %+v, Error: %s", r, err)
+		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
 	}
 	defer resp.Body.Close()
 	if data == nil {

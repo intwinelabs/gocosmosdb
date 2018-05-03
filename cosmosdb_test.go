@@ -41,6 +41,16 @@ func (c *ClientStub) Execute(link string, body, ret interface{}) error {
 	return nil
 }
 
+func (c *ClientStub) GetURI() string {
+	c.Called()
+	return ""
+}
+
+func (c *ClientStub) GetConfig() Config {
+	c.Called()
+	return Config{}
+}
+
 func TestNew(t *testing.T) {
 	assert := assert.New(t)
 	client := New("url", Config{"config"})

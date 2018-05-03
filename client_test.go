@@ -61,6 +61,29 @@ func ServerFactory(resp ...interface{}) *MockServer {
 	return s
 }
 
+func TestGetURI(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(`{"_colls": "colls"}`, 500)
+	defer s.Close()
+	client := &Client{Url: s.URL, Config: Config{"YXJpZWwNCg=="}}
+
+	// First call
+	uri := client.GetURI()
+	assert.Equal(s.URL, uri)
+}
+
+func TestGetConfig(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(`{"_colls": "colls"}`, 500)
+	defer s.Close()
+	client := &Client{Url: s.URL, Config: Config{"YXJpZWwNCg=="}}
+
+	// First call
+	expConf := Config{"YXJpZWwNCg=="}
+	conf := client.GetConfig()
+	assert.Equal(expConf, conf)
+}
+
 func TestRead(t *testing.T) {
 	assert := assert.New(t)
 	s := ServerFactory(`{"_colls": "colls"}`, 500)
@@ -69,14 +92,14 @@ func TestRead(t *testing.T) {
 
 	// First call
 	var db Database
-	err := client.Read("/dbs/b7NTAS==/", &db)
+	err := client.Read("dbs/b7NTAS==/", &db)
 	s.AssertHeaders(t, HEADER_XDATE, HEADER_AUTH, HEADER_VER)
 	assert.Equal(db.Colls, "colls", "Should fill the fields from response body")
 	assert.Nil(err, "err should be nil")
 
 	// Second Call, when StatusCode != StatusOK
-	err = client.Read("/dbs/b7NCAA==/colls/Ad352/", &db)
-	assert.Equal(err.Error(), "500, CosmosDB error")
+	err = client.Read("dbs/b7NCAA==/colls/Ad352/", &db)
+	assert.Contains(err.Error(), "500, CosmosDB error")
 }
 
 func TestQuery(t *testing.T) {
@@ -95,7 +118,7 @@ func TestQuery(t *testing.T) {
 
 	// Second Call, when StatusCode != StatusOK
 	err = client.Read("/dbs/b7NCAA==/colls/Ad352/", &db)
-	assert.Equal(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "500, CosmosDB error")
 }
 
 func TestCreate(t *testing.T) {
@@ -122,7 +145,7 @@ func TestCreate(t *testing.T) {
 
 	// Last Call, when StatusCode != StatusOK && StatusCreated
 	err = client.Create("dbs", tDoc, &doc)
-	assert.Equal(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "500, CosmosDB error")
 }
 
 func TestDelete(t *testing.T) {
@@ -133,13 +156,13 @@ func TestDelete(t *testing.T) {
 	client := &Client{Url: s.URL, Config: Config{"YXJpZWwNCg=="}}
 
 	// First call
-	err := client.Delete("/dbs/b7NTAS==/")
+	err := client.Delete("dbs/b7NTAS==/")
 	s.AssertHeaders(t, HEADER_XDATE, HEADER_AUTH, HEADER_VER)
 	assert.Nil(err, "err should be nil")
 
 	// Second Call, when StatusCode != StatusOK
-	err = client.Delete("/dbs/b7NCAA==/colls/Ad352/")
-	assert.Equal(err.Error(), "500, CosmosDB error")
+	err = client.Delete("dbs/b7NCAA==/colls/Ad352/")
+	assert.Contains(err.Error(), "500, CosmosDB error")
 }
 
 func TestReplace(t *testing.T) {
@@ -166,7 +189,7 @@ func TestReplace(t *testing.T) {
 
 	// Last Call, when StatusCode != StatusOK && StatusCreated
 	err = client.Replace("dbs", tDoc, &doc)
-	assert.Equal(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "500, CosmosDB error")
 }
 
 func TestExecute(t *testing.T) {
@@ -193,5 +216,5 @@ func TestExecute(t *testing.T) {
 
 	// Last Call, when StatusCode != StatusOK && StatusCreated
 	err = client.Execute("dbs", tDoc, &doc)
-	assert.Equal(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "500, CosmosDB error")
 }

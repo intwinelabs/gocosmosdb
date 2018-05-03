@@ -22,6 +22,16 @@ func New(url string, config Config) *CosmosDB {
 	return &CosmosDB{client}
 }
 
+// GetURI returns the CosmosDB URI
+func (c *CosmosDB) GetURI() string {
+	return c.client.GetURI()
+}
+
+// GetConfig return the CosmosDB config
+func (c *CosmosDB) GetConfig() Config {
+	return c.client.GetConfig()
+}
+
 // TODO: Add `requestOptions` arguments
 // Read database by self link
 func (c *CosmosDB) ReadDatabase(link string) (db *Database, err error) {
