@@ -2,7 +2,7 @@
 > Go client driver for Azure CosmosDB 
 
 ### Note
-This library is derived from `github.com/nerdylikeme/go-gocosmosdb`(github.com/nerdylikeme/go-gocosmosdb)
+This library is derived from `github.com/nerdylikeme/go-documentdb`(github.com/nerdylikeme/go-documentdb)
 
 TODO: Add documentation on stored procedurs and user defined functions
 
