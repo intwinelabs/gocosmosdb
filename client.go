@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/moul/http2curl"
+	"github.com/sirupsen/logrus"
 )
 
 type Clienter interface {
@@ -28,6 +29,7 @@ type Client struct {
 	Url    string
 	Config Config
 	http.Client
+	Logger *logrus.Logger
 }
 
 // GetURI return a clients URI
@@ -122,13 +124,13 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 // Private Do function, DRY
 func (c *Client) do(r *Request, status int, data interface{}) error {
 	if c.Config.Debug {
-		fmt.Printf("DEBUG: CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v\n", r.rId, r.rType, r.Request)
+		c.Logger.Debugf("CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v", r.rId, r.rType, r.Request)
 		curl, _ := http2curl.GetCurlCommand(r.Request)
-		fmt.Printf("DEBUG: CURL: %s\n\n", curl)
+		c.Logger.Debugf("CURL: %s", curl)
 	}
 	resp, err := c.Do(r.Request)
 	if c.Config.Debug {
-		fmt.Printf("DEBUG: CosmosDB Response: %+v", resp)
+		c.Logger.Debugf("CosmosDB Response: %+v", resp)
 	}
 	if err != nil {
 		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)

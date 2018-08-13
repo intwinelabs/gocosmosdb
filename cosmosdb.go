@@ -6,6 +6,8 @@ package gocosmosdb
 
 import (
 	"reflect"
+
+	"github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -15,14 +17,19 @@ type Config struct {
 
 type CosmosDB struct {
 	client Clienter
+	Logger *logrus.Logger
 }
 
 // Create CosmosDBClient
-func New(url string, config Config) *CosmosDB {
+func New(url string, config Config, log *logrus.Logger) *CosmosDB {
 	client := &Client{}
 	client.Url = url
 	client.Config = config
-	return &CosmosDB{client}
+	client.Logger = log
+	if log.Level == logrus.WarnLevel {
+		client.Config.Debug = true
+	}
+	return &CosmosDB{client, log}
 }
 
 // GetURI returns the CosmosDB URI
