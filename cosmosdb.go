@@ -4,10 +4,13 @@
 
 package gocosmosdb
 
-import "reflect"
+import (
+	"reflect"
+)
 
 type Config struct {
 	MasterKey string
+	Debug     bool
 }
 
 type CosmosDB struct {
@@ -30,6 +33,16 @@ func (c *CosmosDB) GetURI() string {
 // GetConfig return the CosmosDB config
 func (c *CosmosDB) GetConfig() Config {
 	return c.client.GetConfig()
+}
+
+// EnableDebug enables the CosmosDB debug in config
+func (c *CosmosDB) EnableDebug() {
+	c.client.EnableDebug()
+}
+
+// DisableDebug disables the CosmosDB debug in config
+func (c *CosmosDB) DisableDebug() {
+	c.client.DisableDebug()
 }
 
 // TODO: Add `requestOptions` arguments

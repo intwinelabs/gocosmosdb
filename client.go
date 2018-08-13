@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/moul/http2curl"
 )
 
 type Clienter interface {
@@ -18,6 +20,8 @@ type Clienter interface {
 	Execute(link string, body, ret interface{}) error
 	GetURI() string
 	GetConfig() Config
+	EnableDebug()
+	DisableDebug()
 }
 
 type Client struct {
@@ -34,6 +38,16 @@ func (c *Client) GetURI() string {
 // GetConfig return a clients URI
 func (c *Client) GetConfig() Config {
 	return c.Config
+}
+
+// EnableDebug enables the CosmosDB debug in config
+func (c *Client) EnableDebug() {
+	c.Config.Debug = true
+}
+
+// DisableDebug disables the CosmosDB debug in config
+func (c *Client) DisableDebug() {
+	c.Config.Debug = false
 }
 
 // Read resource by self link
@@ -107,7 +121,15 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 
 // Private Do function, DRY
 func (c *Client) do(r *Request, status int, data interface{}) error {
+	if c.Config.Debug {
+		fmt.Printf("DEBUG: CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v\n", r.rId, r.rType, r.Request)
+		curl, _ := http2curl.GetCurlCommand(r.Request)
+		fmt.Printf("DEBUG: CURL: %s\n\n", curl)
+	}
 	resp, err := c.Do(r.Request)
+	if c.Config.Debug {
+		fmt.Printf("DEBUG: CosmosDB Response: %+v", resp)
+	}
 	if err != nil {
 		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
 	}
