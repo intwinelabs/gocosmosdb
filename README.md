@@ -75,7 +75,7 @@ func main() {
 
 #### ReadDatabase
 ```go
-db, err := client.ReadDatabase("self_link")
+db, err := client.ReadDatabase("self_link | constructed_uri | constructed_uri")
 if err != nil {
 	log.Fatal(err)	
 }
@@ -125,7 +125,7 @@ db, err = client.CreateDatabase(&db)
 
 #### ReplaceDatabase
 ```go
-db, err := client.ReplaceDatabase("self_link", `{ "id": "test" }`)
+db, err := client.ReplaceDatabase("self_link | constructed_uri", `{ "id": "test" }`)
 if err != nil {
 	log.Fatal(err)	
 }
@@ -134,13 +134,13 @@ fmt.Println(db)
 ```go	
 // or ...
 var db gocosmosdb.Database
-db, err = client.ReplaceDatabase("self_link", &db)
+db, err = client.ReplaceDatabase("self_link | constructed_uri", &db)
 ```
 [TOC](#Table_of_contents)
 
 #### DeleteDatabase
 ```go
-err := client.DeleteDatabase("self_link")
+err := client.DeleteDatabase("self_link | constructed_uri")
 if err != nil {
 	log.Fatal(err)	
 }
@@ -151,7 +151,7 @@ if err != nil {
 
 #### ReadCollection
 ```go
-coll, err := client.ReadCollection("self_link")
+coll, err := client.ReadCollection("self_link | constructed_uri")
 if err != nil {
 	log.Fatal(err)	
 }
@@ -161,7 +161,7 @@ fmt.Println(coll.Self, coll.Id)
 
 #### QueryCollections
 ```go
-colls, err := client.QueryCollections("db_self_link", "SELECT * FROM ROOT r")
+colls, err := client.QueryCollections("db_self_link | constructed_uri", "SELECT * FROM ROOT r")
 if err != nil {
 	log.Fatal(err)	
 }
@@ -173,7 +173,7 @@ for _, coll := range colls {
 
 #### ReadCollections
 ```go
-colls, err := client.ReadCollections("db_self_link")
+colls, err := client.ReadCollections("db_self_link | constructed_uri")
 if err != nil {
 	log.Fatal(err)	
 }
@@ -185,7 +185,7 @@ for _, coll := range colls {
 
 #### CreateCollection
 ```go
-coll, err := client.CreateCollection("db_self_link", `{"id": "my_test"}`)
+coll, err := client.CreateCollection("db_self_link | constructed_uri", `{"id": "my_test"}`)
 if err != nil {
 	log.Fatal(err)	
 }
@@ -195,13 +195,13 @@ fmt.Println("Collection Name:", coll.Id)
 // or ...
 var coll gocosmosdb.Collection
 coll.Id = "test"
-coll, err = client.CreateCollection("db_self_link", &coll)
+coll, err = client.CreateCollection("db_self_link | constructed_uri", &coll)
 ```
 [TOC](#Table_of_contents)
 
 #### DeleteCollection
 ```go
-err := client.DeleteCollection("self_link")
+err := client.DeleteCollection("self_link | constructed_uri")
 if err != nil {
 	log.Fatal(err)	
 }
@@ -221,7 +221,7 @@ type Document struct {
 
 func main() {
 	var doc Document
-	err = client.ReadDocument("self_link", &doc)
+	err = client.ReadDocument("self_link | constructed_uri", &doc)
 	if err != nil {
 		log.Fatal(err)	
 	}
@@ -241,7 +241,7 @@ type User struct {
 
 func main() {
 	var users []User
-	err = client.QueryDocuments("coll_self_link", "SELECT * FROM ROOT r", &users)
+	err = client.QueryDocuments("coll_self_link | constructed_uri", "SELECT * FROM ROOT r", &users)
 	if err != nil {
 		log.Fatal(err)	
 	}
@@ -263,7 +263,7 @@ type User struct {
 
 func main() {
 	var users []User
-	err = client.ReadDocuments("coll_self_link", &users)
+	err = client.ReadDocuments("coll_self_link | constructed_uri", &users)
 	if err != nil {
 		log.Fatal(err)	
 	}
@@ -290,7 +290,7 @@ func main() {
 	user.Id = "uuid"
 	user.Name = "Bad MF"
 	user.Email = "badmf@intwine.io"
-	err := client.CreateDocument("coll_self_link", &doc)
+	err := client.CreateDocument("coll_self_link | constructed_uri", &doc)
 	if err != nil {
 		log.Fatal(err)	
 	}
@@ -311,7 +311,7 @@ func main() {
 	var user User
 	user.Id = "uuid"
 	user.IsAdmin = false
-	err := client.ReplaceDocument("doc_self_link", &user)
+	err := client.ReplaceDocument("doc_self_link | constructed_uri", &user)
 	if err != nil {
 		log.Fatal(err)	
 	}
@@ -322,7 +322,7 @@ func main() {
 
 #### DeleteDocument
 ```go
-err := client.DeleteDocument("doc_self_link")
+err := client.DeleteDocument("doc_self_link | constructed_uri")
 if err != nil {
 	log.Fatal(err)	
 }
