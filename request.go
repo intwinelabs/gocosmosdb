@@ -49,7 +49,6 @@ func (req *Request) DefaultHeaders(mKey string) (err error) {
 	req.Header.Add(HEADER_VER, "2017-02-22")
 
 	// Auth
-	//parts := []string{req.Method, req.rType, req.rLink, req.Header.Get(HEADER_XDATE), req.Header.Get("Date"), ""}
 	parts := req.Method + "\n" +
 		req.rType + "\n" +
 		req.rLink + "\n" +
@@ -87,7 +86,7 @@ func (req *Request) QueryHeaders(len int) {
 // /dbs/{dbName}/users/{userId}	User with an id matching the value {user} - 4 -6
 // /dbs/{dbName}/users/{userId}/permissions	Feed of permissions under a user - 5 -7
 // /dbs/{dbName}/users/{userId}/permissions/{permissionId}	Permission with an id matching the value {permission} - 6 - 8
-// (e.g: "/dbs/b5NCAA==/" ==> "/dbs/b5NCAA==/", "b5NCAA==", "dbs")
+// (e.g: "/dbs/b5NCAA==/" ==> "b5NCAA==", "b5NCAA==", "dbs")
 // (e.g: "/dbs/mydb/colls/mydb/docs/mydoc" ==> "b5NCAA==", "docs")
 func parse(link string) (rLink, rId, rType string) {
 	if strings.HasPrefix(link, "/") == false {
