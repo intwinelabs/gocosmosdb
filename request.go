@@ -9,12 +9,15 @@ import (
 )
 
 const (
-	HEADER_XDATE    = "X-Ms-Date"
-	HEADER_AUTH     = "Authorization"
-	HEADER_VER      = "X-Ms-Version"
-	HEADER_CONTYPE  = "Content-Type"
-	HEADER_CONLEN   = "Content-Length"
-	HEADER_IS_QUERY = "X-Ms-Documentdb-Isquery"
+	HEADER_XDATE             = "X-Ms-Date"
+	HEADER_AUTH              = "Authorization"
+	HEADER_VER               = "X-Ms-Version"
+	HEADER_CONTYPE           = "Content-Type"
+	HEADER_CONLEN            = "Content-Length"
+	HEADER_IS_QUERY          = "X-Ms-Documentdb-Isquery"
+	HEADER_POP_QUERY_METRICS = "X-Ms-Documentdb-Populatequerymetrics"
+	HEADER_QUERY_METRICS     = "X-Ms-Documentdb-Query-Metrics"
+	HEADER_REQ_CHARGE        = "X-Ms-Request-Charge"
 )
 
 // Request Error
@@ -73,6 +76,11 @@ func (req *Request) QueryHeaders(len int) {
 	req.Header.Add(HEADER_CONTYPE, "application/query+json")
 	req.Header.Add(HEADER_IS_QUERY, "true")
 	req.Header.Add(HEADER_CONLEN, string(len))
+}
+
+// Add headers for query metrics request
+func (req *Request) QueryMetricsHeaders() {
+	req.Header.Add(HEADER_POP_QUERY_METRICS, "true")
 }
 
 // Get link and return resource Id and Type

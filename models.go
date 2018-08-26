@@ -12,8 +12,8 @@ type Resource struct {
 // Indexing policy
 // TODO: Ex/IncludePaths
 type IndexingPolicy struct {
-	IndexingMode string `json: "indexingMode,omitempty"`
-	Automatic    bool   `json: "automatic,omitempty"`
+	IndexingMode string `json:"indexingMode,omitempty"`
+	Automatic    bool   `json:"automatic,omitempty"`
 }
 
 // Database
@@ -37,7 +37,7 @@ type Collection struct {
 // Document
 type Document struct {
 	Resource
-	attachments string `json: "attachments,omitempty"`
+	Attachments string `json:"attachments,omitempty"`
 }
 
 // Stored Procedure
@@ -50,4 +50,24 @@ type Sproc struct {
 type UDF struct {
 	Resource
 	Body string `json:"body,omitempty"`
+}
+
+// Metrics
+type Metrics struct {
+	TotalExecutionTimeInMs         float64 `json:"totalExecutionTimeInMs,omitempty"`
+	QueryCompileTimeInMs           float64 `json:"queryCompileTimeInMs,omitempty"`
+	QueryLogicalPlanBuildTimeInMs  float64 `json:"queryLogicalPlanBuildTimeInMs,omitempty"`
+	QueryPhysicalPlanBuildTimeInMs float64 `json:"queryPhysicalPlanBuildTimeInMs,omitempty"`
+	QueryOptimizationTimeInMs      float64 `json:"queryOptimizationTimeInMs,omitempty"`
+	VMExecutionTimeInMs            float64 `json:"VMExecutionTimeInMs,omitempty"`
+	IndexLookupTimeInMs            float64 `json:"indexLookupTimeInMs,omitempty"`
+	DocumentLoadTimeInMs           float64 `json:"documentLoadTimeInMs,omitempty"`
+	SystemFunctionExecuteTimeInMs  float64 `json:"systemFunctionExecuteTimeInMs,omitempty"`
+	UserFunctionExecuteTimeInMs    float64 `json:"userFunctionExecuteTimeInMs,omitempty"`
+	RetrievedDocumentCount         int     `json:"retrievedDocumentCount,omitempty"`
+	RetrievedDocumentSize          int     `json:"retrievedDocumentSize,omitempty"`
+	OutputDocumentCount            int     `json:"outputDocumentCount,omitempty"`
+	WriteOutputTimeInMs            float64 `json:"writeOutputTimeInMs,omitempty"`
+	IndexUtilizationRatio          float64 `json:"indexUtilizationRatio,omitempty"`
+	RequestCharge                  float64 `json:"requestCharge,omitempty"`
 }

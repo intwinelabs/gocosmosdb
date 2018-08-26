@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
+
 	"github.com/moul/http2curl"
 	"github.com/sirupsen/logrus"
 )
@@ -124,13 +126,16 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 // Private Do function, DRY
 func (c *Client) do(r *Request, status int, data interface{}) error {
 	if c.Config.Debug {
+		r.QueryMetricsHeaders()
 		c.Logger.Debugf("CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v", r.rId, r.rType, r.Request)
 		curl, _ := http2curl.GetCurlCommand(r.Request)
 		c.Logger.Debugf("CURL: %s", curl)
 	}
 	resp, err := c.Do(r.Request)
 	if c.Config.Debug {
-		c.Logger.Debugf("CosmosDB Response: %+v", resp)
+		c.Logger.Debugf("CosmosDB Rquest: %s", spew.Sdump(resp.Request))
+		c.Logger.Debugf("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
+		c.Logger.Debugf("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
 	}
 	if err != nil {
 		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
@@ -144,7 +149,17 @@ func (c *Client) do(r *Request, status int, data interface{}) error {
 	if data == nil {
 		return nil
 	}
-	return readJson(resp.Body, data)
+	err = readJson(resp.Body, data)
+	if err != nil {
+		return err
+	}
+	if c.Config.Debug {
+		c.Logger.Debugf("CosmosDB Rquest: %s", spew.Sdump(resp.Request))
+		c.Logger.Debugf("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
+		c.Logger.Debugf("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
+		c.Logger.Debugf("CosmosDB Response Content: %s", spew.Sdump(data))
+	}
+	return nil
 }
 
 // Generate link

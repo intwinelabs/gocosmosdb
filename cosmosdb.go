@@ -26,7 +26,7 @@ func New(url string, config Config, log *logrus.Logger) *CosmosDB {
 	client.Url = url
 	client.Config = config
 	client.Logger = log
-	if log.Level == logrus.WarnLevel {
+	if log.Level == logrus.DebugLevel {
 		client.Config.Debug = true
 	}
 	return &CosmosDB{client, log}
