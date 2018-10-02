@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
@@ -125,6 +126,9 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 
 // Private Do function, DRY
 func (c *Client) do(r *Request, status int, data interface{}) error {
+	if filepath.Base(r.URL.Path) == "colls" && r.Method == "POST" {
+		r.ThroughputHeaders()
+	}
 	if c.Config.Debug {
 		r.QueryMetricsHeaders()
 		c.Logger.Debugf("CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v", r.rId, r.rType, r.Request)
@@ -132,8 +136,8 @@ func (c *Client) do(r *Request, status int, data interface{}) error {
 		c.Logger.Debugf("CURL: %s", curl)
 	}
 	resp, err := c.Do(r.Request)
-	if c.Config.Debug {
-		c.Logger.Debugf("CosmosDB Rquest: %s", spew.Sdump(resp.Request))
+	if c.Config.Debug && c.Config.Verbose {
+		c.Logger.Debugf("CosmosDB Request: %s", spew.Sdump(resp.Request))
 		c.Logger.Debugf("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
 		c.Logger.Debugf("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
 	}
@@ -153,8 +157,8 @@ func (c *Client) do(r *Request, status int, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	if c.Config.Debug {
-		c.Logger.Debugf("CosmosDB Rquest: %s", spew.Sdump(resp.Request))
+	if c.Config.Debug && c.Config.Verbose {
+		c.Logger.Debugf("CosmosDB Request: %s", spew.Sdump(resp.Request))
 		c.Logger.Debugf("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
 		c.Logger.Debugf("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
 		c.Logger.Debugf("CosmosDB Response Content: %s", spew.Sdump(data))

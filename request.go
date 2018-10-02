@@ -18,6 +18,7 @@ const (
 	HEADER_POP_QUERY_METRICS = "X-Ms-Documentdb-Populatequerymetrics"
 	HEADER_QUERY_METRICS     = "X-Ms-Documentdb-Query-Metrics"
 	HEADER_REQ_CHARGE        = "X-Ms-Request-Charge"
+	HEADER_OFFER_THROUGHPUT  = "X-Ms-Offer-Throughput"
 )
 
 // Request Error
@@ -81,6 +82,11 @@ func (req *Request) QueryHeaders(len int) {
 // Add headers for query metrics request
 func (req *Request) QueryMetricsHeaders() {
 	req.Header.Add(HEADER_POP_QUERY_METRICS, "true")
+}
+
+// Add throughput headers
+func (req *Request) ThroughputHeaders() {
+	req.Header.Add(HEADER_OFFER_THROUGHPUT, "400")
 }
 
 // Get link and return resource Id and Type

@@ -61,7 +61,7 @@ func (c *ClientStub) DisableDebug() {
 
 func TestNew(t *testing.T) {
 	assert := assert.New(t)
-	client := New("url", Config{"config", false}, log)
+	client := New("url", Config{"config", true, true}, log)
 	assert.IsType(client, &CosmosDB{}, "Should return CosmosDB object")
 }
 

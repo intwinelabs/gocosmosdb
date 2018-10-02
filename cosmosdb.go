@@ -13,6 +13,7 @@ import (
 type Config struct {
 	MasterKey string
 	Debug     bool
+	Verbose   bool
 }
 
 type CosmosDB struct {
