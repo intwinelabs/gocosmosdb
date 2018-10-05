@@ -10,9 +10,8 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-
+	"github.com/intwineapp/logger"
 	"github.com/moul/http2curl"
-	"github.com/sirupsen/logrus"
 )
 
 type Clienter interface {
@@ -32,7 +31,7 @@ type Client struct {
 	Url    string
 	Config Config
 	http.Client
-	Logger *logrus.Logger
+	Logger *logger.Logger
 }
 
 // GetURI return a clients URI
@@ -131,15 +130,15 @@ func (c *Client) do(r *Request, status int, data interface{}) error {
 	}
 	if c.Config.Debug {
 		r.QueryMetricsHeaders()
-		c.Logger.Debugf("CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v", r.rId, r.rType, r.Request)
+		c.Logger.Infof("CosmosDB Request: ID: %+v, Type: %+v, HTTP Request: %+v", r.rId, r.rType, r.Request)
 		curl, _ := http2curl.GetCurlCommand(r.Request)
-		c.Logger.Debugf("CURL: %s", curl)
+		c.Logger.Infof("CURL: %s", curl)
 	}
 	resp, err := c.Do(r.Request)
 	if c.Config.Debug && c.Config.Verbose {
-		c.Logger.Debugf("CosmosDB Request: %s", spew.Sdump(resp.Request))
-		c.Logger.Debugf("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
-		c.Logger.Debugf("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
+		c.Logger.Infof("CosmosDB Request: %s", spew.Sdump(resp.Request))
+		c.Logger.Infof("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
+		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
 	}
 	if err != nil {
 		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
@@ -158,10 +157,10 @@ func (c *Client) do(r *Request, status int, data interface{}) error {
 		return err
 	}
 	if c.Config.Debug && c.Config.Verbose {
-		c.Logger.Debugf("CosmosDB Request: %s", spew.Sdump(resp.Request))
-		c.Logger.Debugf("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
-		c.Logger.Debugf("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
-		c.Logger.Debugf("CosmosDB Response Content: %s", spew.Sdump(data))
+		c.Logger.Infof("CosmosDB Request: %s", spew.Sdump(resp.Request))
+		c.Logger.Infof("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
+		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
+		c.Logger.Infof("CosmosDB Response Content: %s", spew.Sdump(data))
 	}
 	return nil
 }

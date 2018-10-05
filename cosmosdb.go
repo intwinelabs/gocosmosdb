@@ -7,7 +7,7 @@ package gocosmosdb
 import (
 	"reflect"
 
-	"github.com/sirupsen/logrus"
+	"github.com/intwineapp/logger"
 )
 
 type Config struct {
@@ -18,11 +18,11 @@ type Config struct {
 
 type CosmosDB struct {
 	client Clienter
-	Logger *logrus.Logger
+	Logger *logger.Logger
 }
 
 // Create CosmosDBClient
-func New(url string, config Config, log *logrus.Logger) *CosmosDB {
+func New(url string, config Config, log *logger.Logger) *CosmosDB {
 	client := &Client{}
 	client.Url = url
 	client.Config = config
