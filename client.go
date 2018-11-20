@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/intwineapp/logger"
+	"github.com/intwinelabs/logger"
 	"github.com/moul/http2curl"
 )
 

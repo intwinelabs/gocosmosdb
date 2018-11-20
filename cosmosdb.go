@@ -7,7 +7,7 @@ package gocosmosdb
 import (
 	"reflect"
 
-	"github.com/intwineapp/logger"
+	"github.com/intwinelabs/logger"
 )
 
 type Config struct {

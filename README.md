@@ -49,14 +49,14 @@ TODO: Add documentation on stored procedurs and user defined functions
 
 #### Installation
 ```bash
-$ go get github.com/intwineapp/gocosomsdb
+$ go get github.com/intwinelabs/gocosomsdb
 ```
 [TOC](#Table_of_contents)
 
 #### Add to your project
 ```go
 import (
-	"github.com/intwineapp/gocosmosdb"
+	"github.com/intwinelabs/gocosmosdb"
 )
 
 func main() {
