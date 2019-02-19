@@ -50,7 +50,6 @@ func (c *CosmosDB) DisableDebug() {
 	c.client.DisableDebug()
 }
 
-// TODO: Add `requestOptions` arguments
 // Read database by self link
 func (c *CosmosDB) ReadDatabase(link string) (db *Database, err error) {
 	err = c.client.Read(link, &db)
@@ -246,7 +245,6 @@ func (c *CosmosDB) CreateDocument(coll string, doc interface{}) error {
 	return c.client.Create(coll+"docs/", doc, &doc)
 }
 
-// TODO: DRY, but the sdk want that[mm.. maybe just client.Delete(self_link)]
 // Delete database
 func (c *CosmosDB) DeleteDatabase(link string) error {
 	return c.client.Delete(link)
@@ -284,6 +282,11 @@ func (c *CosmosDB) ReplaceDatabase(link string, body interface{}) (db *Database,
 // Replace document
 func (c *CosmosDB) ReplaceDocument(link string, doc interface{}) error {
 	return c.client.Replace(link, doc, &doc)
+}
+
+// Replace Async document
+func (c *CosmosDB) ReplaceDocumentAsync(link string, doc interface{}) error {
+	return c.client.ReplaceAsync(link, doc, &doc)
 }
 
 // Replace stored procedure

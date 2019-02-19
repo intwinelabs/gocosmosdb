@@ -20,6 +20,7 @@ type Clienter interface {
 	Query(link string, query string, ret interface{}) error
 	Create(link string, body, ret interface{}) error
 	Replace(link string, body, ret interface{}) error
+	ReplaceAsync(link string, body, ret interface{}) error
 	Execute(link string, body, ret interface{}) error
 	GetURI() string
 	GetConfig() Config
@@ -56,12 +57,12 @@ func (c *Client) DisableDebug() {
 
 // Read resource by self link
 func (c *Client) Read(link string, ret interface{}) error {
-	return c.method("GET", link, http.StatusOK, ret, &bytes.Buffer{})
+	return c.method("GET", link, http.StatusOK, ret, &bytes.Buffer{}, nil)
 }
 
 // Delete resource by self link
 func (c *Client) Delete(link string) error {
-	return c.method("DELETE", link, http.StatusNoContent, nil, &bytes.Buffer{})
+	return c.method("DELETE", link, http.StatusNoContent, nil, &bytes.Buffer{}, nil)
 }
 
 // Query resource
@@ -86,7 +87,7 @@ func (c *Client) Create(link string, body, ret interface{}) error {
 		return err
 	}
 	buf := bytes.NewBuffer(data)
-	return c.method("POST", link, http.StatusCreated, ret, buf)
+	return c.method("POST", link, http.StatusCreated, ret, buf, nil)
 }
 
 // Replace resource
@@ -96,22 +97,35 @@ func (c *Client) Replace(link string, body, ret interface{}) error {
 		return err
 	}
 	buf := bytes.NewBuffer(data)
-	return c.method("PUT", link, http.StatusOK, ret, buf)
+	return c.method("PUT", link, http.StatusOK, ret, buf, nil)
+}
+
+// ReplaceAsync resource
+func (c *Client) ReplaceAsync(link string, body, ret interface{}) error {
+	data, err := stringify(body)
+	if err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(data)
+	var async *AsyncCall
+	if resource, ok := body.(Resource); ok {
+		async = &AsyncCall{Etag: resource.Etag}
+	}
+	return c.method("PUT", link, http.StatusOK, ret, buf, async)
 }
 
 // Replace resource
-// TODO: DRY, move to methods instead of actions(POST, PUT, ...)
 func (c *Client) Execute(link string, body, ret interface{}) error {
 	data, err := stringify(body)
 	if err != nil {
 		return err
 	}
 	buf := bytes.NewBuffer(data)
-	return c.method("POST", link, http.StatusOK, ret, buf)
+	return c.method("POST", link, http.StatusOK, ret, buf, nil)
 }
 
 // Private generic method resource
-func (c *Client) method(method, link string, status int, ret interface{}, body *bytes.Buffer) (err error) {
+func (c *Client) method(method, link string, status int, ret interface{}, body *bytes.Buffer, async *AsyncCall) (err error) {
 	req, err := http.NewRequest(method, path(c.Url, link), body)
 	if err != nil {
 		return err

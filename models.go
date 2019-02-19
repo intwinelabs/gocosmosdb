@@ -34,6 +34,11 @@ type Collection struct {
 	Conflicts      string         `json:"_conflicts,omitempty"`
 }
 
+// AyscCall
+type AsyncCall struct {
+	Etag string
+}
+
 // Document
 type Document struct {
 	Resource

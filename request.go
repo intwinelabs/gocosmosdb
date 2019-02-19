@@ -19,6 +19,7 @@ const (
 	HEADER_QUERY_METRICS     = "X-Ms-Documentdb-Query-Metrics"
 	HEADER_REQ_CHARGE        = "X-Ms-Request-Charge"
 	HEADER_OFFER_THROUGHPUT  = "X-Ms-Offer-Throughput"
+	HEADER_IF_MATCH          = "If-Match"
 )
 
 // Request Error
@@ -70,6 +71,11 @@ func (req *Request) DefaultHeaders(mKey string) (err error) {
 	tokenVersion := "1.0"
 	req.Header.Add(HEADER_AUTH, url.QueryEscape("type="+masterToken+"&ver="+tokenVersion+"&sig="+sign))
 	return
+}
+
+// Add headers for async
+func (req *Request) AsyncHeaders(eTag string) {
+	req.Header.Add(HEADER_IF_MATCH, eTag)
 }
 
 // Add headers for query request
