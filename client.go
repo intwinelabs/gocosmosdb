@@ -134,6 +134,9 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 	if err = r.DefaultHeaders(c.Config.MasterKey); err != nil {
 		return err
 	}
+	if async != nil {
+		r.AsyncHeaders(async.Etag)
+	}
 	return c.do(r, status, ret)
 }
 

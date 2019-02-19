@@ -7,11 +7,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/sirupsen/logrus"
+	"github.com/intwinelabs/logger"
 	"github.com/stretchr/testify/assert"
 )
 
-var log = logrus.New()
+var log = logger.New()
 
 // I more interested in the request, instead of the response
 type RequestRecorder struct {

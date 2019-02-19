@@ -36,6 +36,11 @@ func (c *ClientStub) Replace(link string, body, ret interface{}) error {
 	return nil
 }
 
+func (c *ClientStub) ReplaceAsync(link string, body, ret interface{}) error {
+	c.Called(link, body)
+	return nil
+}
+
 func (c *ClientStub) Execute(link string, body, ret interface{}) error {
 	c.Called(link, body)
 	return nil
