@@ -3,6 +3,7 @@ package gocosmosdb
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -108,9 +109,20 @@ func (c *Client) ReplaceAsync(link string, body, ret interface{}) error {
 	}
 	buf := bytes.NewBuffer(data)
 	var async *AsyncCall
-	if resource, ok := body.(Resource); ok {
-		async = &AsyncCall{Etag: resource.Etag}
+	var Etag string
+	var resource map[string]interface{}
+	err = json.Unmarshal(data, &resource)
+	if err != nil {
+		return err
 	}
+	if valInterface, ok := resource["_etag"]; ok {
+		if val, ok := valInterface.(string); ok {
+			Etag = val
+		}
+	} else {
+		return errors.New("_etag does not exist for async replace")
+	}
+	async = &AsyncCall{Etag: Etag}
 	return c.method("PUT", link, http.StatusOK, ret, buf, async)
 }
 
