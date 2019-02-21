@@ -5,6 +5,7 @@
 package gocosmosdb
 
 import (
+	"errors"
 	"reflect"
 
 	"github.com/intwinelabs/logger"
@@ -196,6 +197,20 @@ func (c *CosmosDB) QueryDocuments(coll, query string, docs interface{}) (err err
 		err = c.client.Query(coll+"docs/", query, &data)
 	} else {
 		err = c.client.Read(coll+"docs/", &data)
+	}
+	return
+}
+
+// Read all documents in a collection that satisfy a query with parameters
+func (c *CosmosDB) QueryDocumentsWithParmeters(coll string, query *QueryWithParameters, docs interface{}) (err error) {
+	data := struct {
+		Documents interface{} `json:"Documents,omitempty"`
+		Count     int         `json:"_count,omitempty"`
+	}{Documents: docs}
+	if query != nil {
+		err = c.client.QueryWithParameters(coll+"docs/", query, &data)
+	} else {
+		err = errors.New("QueryWithParameters cannot be nil")
 	}
 	return
 }

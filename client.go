@@ -19,6 +19,7 @@ type Clienter interface {
 	Read(link string, ret interface{}) error
 	Delete(link string) error
 	Query(link string, query string, ret interface{}) error
+	QueryWithParameters(link string, query *QueryWithParameters, ret interface{}) error
 	Create(link string, body, ret interface{}) error
 	Replace(link string, body, ret interface{}) error
 	ReplaceAsync(link string, body, ret interface{}) error
@@ -69,6 +70,25 @@ func (c *Client) Delete(link string) error {
 // Query resource
 func (c *Client) Query(link, query string, ret interface{}) error {
 	buf := bytes.NewBufferString(querify(query))
+	req, err := http.NewRequest("POST", path(c.Url, link), buf)
+	if err != nil {
+		return err
+	}
+	r := ResourceRequest(link, req)
+	if err = r.DefaultHeaders(c.Config.MasterKey); err != nil {
+		return err
+	}
+	r.QueryHeaders(buf.Len())
+	return c.do(r, http.StatusOK, ret)
+}
+
+// QueryWithParameters resource
+func (c *Client) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}) error {
+	q, err := stringify(query)
+	if err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(q)
 	req, err := http.NewRequest("POST", path(c.Url, link), buf)
 	if err != nil {
 		return err

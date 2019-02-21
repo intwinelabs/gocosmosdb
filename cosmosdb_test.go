@@ -21,6 +21,11 @@ func (c *ClientStub) Query(link, query string, ret interface{}) error {
 	return nil
 }
 
+func (c *ClientStub) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}) error {
+	c.Called(link, query)
+	return nil
+}
+
 func (c *ClientStub) Create(link string, body, ret interface{}) error {
 	c.Called(link, body)
 	return nil

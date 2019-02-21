@@ -39,6 +39,18 @@ type AsyncCall struct {
 	Etag string
 }
 
+// QueryWithParameters
+type QueryWithParameters struct {
+	Query      string          `json:"query"`
+	Parameters []QueryParamter `json:"parameters"`
+}
+
+// QueryParameter
+type QueryParamter struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 // Document
 type Document struct {
 	Resource
