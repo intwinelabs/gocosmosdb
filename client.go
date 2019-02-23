@@ -184,20 +184,24 @@ func (c *Client) do(r *Request, status int, data interface{}) error {
 		c.Logger.Infof("CURL: %s", curl)
 	}
 	resp, err := c.Do(r.Request)
+	if err != nil {
+		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
+	}
+	defer resp.Body.Close()
 	if c.Config.Debug && c.Config.Verbose {
 		c.Logger.Infof("CosmosDB Request: %s", spew.Sdump(resp.Request))
 		c.Logger.Infof("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
 		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
 	}
-	if err != nil {
-		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
-	}
 	if resp.StatusCode != status {
-		err = &RequestError{}
+		err := &RequestError{}
 		readJson(resp.Body, &err)
-		return fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
+		err.StatusCode = resp.StatusCode
+		err.RId = r.rId
+		err.RType = r.rType
+		err.Request = r.Request
+		return err
 	}
-	defer resp.Body.Close()
 	if data == nil {
 		return nil
 	}

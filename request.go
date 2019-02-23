@@ -24,8 +24,12 @@ const (
 
 // Request Error
 type RequestError struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	Code       string        `json:"code"`
+	StatusCode int           `json:"statusCode"`
+	Message    string        `json:"message"`
+	RId        string        `json:"rId"`
+	RType      string        `json:"rType`
+	Request    *http.Request `json:"request"`
 }
 
 // Implement Error function
