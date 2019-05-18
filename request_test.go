@@ -21,9 +21,9 @@ func TestDefaultHeaders(t *testing.T) {
 	_ = req.DefaultHeaders("YXJpZWwNCg==")
 
 	assert := assert.New(t)
-	assert.NotEqual(req.Header.Get(HEADER_AUTH), "")
-	assert.NotEqual(req.Header.Get(HEADER_XDATE), "")
-	assert.NotEqual(req.Header.Get(HEADER_VER), "")
+	assert.NotEqual(req.Header.Get(HeaderAuth), "")
+	assert.NotEqual(req.Header.Get(HeaderXDate), "")
+	assert.NotEqual(req.Header.Get(HeaderVersion), "")
 }
 
 // Get link and return resource Id and Type

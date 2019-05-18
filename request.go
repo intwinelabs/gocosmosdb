@@ -9,17 +9,31 @@ import (
 )
 
 const (
-	HEADER_XDATE             = "X-Ms-Date"
-	HEADER_AUTH              = "Authorization"
-	HEADER_VER               = "X-Ms-Version"
-	HEADER_CONTYPE           = "Content-Type"
-	HEADER_CONLEN            = "Content-Length"
-	HEADER_IS_QUERY          = "X-Ms-Documentdb-Isquery"
-	HEADER_POP_QUERY_METRICS = "X-Ms-Documentdb-Populatequerymetrics"
-	HEADER_QUERY_METRICS     = "X-Ms-Documentdb-Query-Metrics"
-	HEADER_REQ_CHARGE        = "X-Ms-Request-Charge"
-	HEADER_OFFER_THROUGHPUT  = "X-Ms-Offer-Throughput"
-	HEADER_IF_MATCH          = "If-Match"
+	HeaderXDate                = "X-Ms-Date"
+	HeaderAuth                 = "Authorization"
+	HeaderVersion              = "X-Ms-Version"
+	HeaderContentType          = "Content-Type"
+	HeaderContentLength        = "Content-Length"
+	HeaderIsQuery              = "X-Ms-Documentdb-Isquery"
+	HeaderUpsert               = "X-Ms-Documentdb-Is-Upsert"
+	HeaderPartitionKey         = "X-Ms-Documentdb-Partitionkey"
+	HeaderMaxItemCount         = "X-Ms-Max-Item-Count"
+	HeaderContinuation         = "X-Ms-Continuation"
+	HeaderConsistency          = "X-Ms-Consistency-Level"
+	HeaderSessionToken         = "X-Ms-Session-Token"
+	HeaderCrossPartition       = "X-Ms-Documentdb-Query-Enablecrosspartition"
+	HeaderIfMatch              = "If-Match"
+	HeaderIfNonMatch           = "If-None-Match"
+	HeaderIfModifiedSince      = "If-Modified-Since"
+	HeaderActivityID           = "X-Ms-Activity-Id"
+	HeaderRequestCharge        = "X-Ms-Request-Charge"
+	HeaderAIM                  = "A-IM"
+	HeaderOfferThroughput      = "X-Ms-Offer-Throughput"
+	HeaderPartitionKeyRangeID  = "X-Ms-Documentdb-Partitionkeyrangeid"
+	HeaderPopulateQueryMetrics = "X-Ms-Documentdb-Populatequerymetrics"
+	HeaderQueryMetrics         = "X-Ms-Documentdb-Query-Metrics"
+
+	SupportedVersion = "2017-02-22"
 )
 
 // Request Error
@@ -54,14 +68,14 @@ func ResourceRequest(link string, req *http.Request) *Request {
 // Add 3 default headers to *Request
 // "x-ms-date", "x-ms-version", "authorization"
 func (req *Request) DefaultHeaders(mKey string) (err error) {
-	req.Header.Add(HEADER_XDATE, time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
-	req.Header.Add(HEADER_VER, "2017-02-22")
+	req.Header.Add(HeaderXDate, time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
+	req.Header.Add(HeaderVersion, "2017-02-22")
 
 	// Auth
 	parts := req.Method + "\n" +
 		req.rType + "\n" +
 		req.rLink + "\n" +
-		req.Header.Get(HEADER_XDATE) + "\n" +
+		req.Header.Get(HeaderXDate) + "\n" +
 		req.Header.Get("Date") + "\n"
 
 	partsLower := strings.ToLower(parts)
@@ -73,30 +87,20 @@ func (req *Request) DefaultHeaders(mKey string) (err error) {
 
 	masterToken := "master"
 	tokenVersion := "1.0"
-	req.Header.Add(HEADER_AUTH, url.QueryEscape("type="+masterToken+"&ver="+tokenVersion+"&sig="+sign))
+	req.Header.Add(HeaderAuth, url.QueryEscape("type="+masterToken+"&ver="+tokenVersion+"&sig="+sign))
 	return
-}
-
-// Add headers for async
-func (req *Request) AsyncHeaders(eTag string) {
-	req.Header.Add(HEADER_IF_MATCH, eTag)
 }
 
 // Add headers for query request
 func (req *Request) QueryHeaders(len int) {
-	req.Header.Add(HEADER_CONTYPE, "application/query+json")
-	req.Header.Add(HEADER_IS_QUERY, "true")
-	req.Header.Add(HEADER_CONLEN, string(len))
+	req.Header.Add(HeaderContentType, "application/query+json")
+	req.Header.Add(HeaderIsQuery, "true")
+	req.Header.Add(HeaderContentLength, string(len))
 }
 
 // Add headers for query metrics request
 func (req *Request) QueryMetricsHeaders() {
-	req.Header.Add(HEADER_POP_QUERY_METRICS, "true")
-}
-
-// Add throughput headers
-func (req *Request) ThroughputHeaders() {
-	req.Header.Add(HEADER_OFFER_THROUGHPUT, "400")
+	req.Header.Add(HeaderPopulateQueryMetrics, "true")
 }
 
 // Get link and return resource Id and Type
@@ -163,4 +167,9 @@ func parse(link string) (rLink, rId, rType string) {
 	}
 
 	return
+}
+
+type queryPartitionKeyRangesRequest struct {
+	Ranges []PartitionKeyRange `json:"PartitionKeyRanges,omitempty"`
+	Count  int                 `json:"_count,omitempty"`
 }

@@ -11,44 +11,49 @@ type ClientStub struct {
 	mock.Mock
 }
 
-func (c *ClientStub) Read(link string, ret interface{}) error {
+func (c *ClientStub) Read(link string, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) Query(link, query string, ret interface{}) error {
+func (c *ClientStub) Query(link, query string, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link, query)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}) error {
+func (c *ClientStub) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link, query)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) Create(link string, body, ret interface{}) error {
+func (c *ClientStub) Create(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link, body)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) Delete(link string) error {
+func (c *ClientStub) Upsert(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
+	c.Called(link, body)
+	return nil, nil
+}
+
+func (c *ClientStub) Delete(link string, opts ...CallOption) (*Response, error) {
 	c.Called(link)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) Replace(link string, body, ret interface{}) error {
+func (c *ClientStub) Replace(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link, body)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) ReplaceAsync(link string, body, ret interface{}) error {
+func (c *ClientStub) ReplaceAsync(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link, body)
-	return nil
+	return nil, nil
 }
 
-func (c *ClientStub) Execute(link string, body, ret interface{}) error {
+func (c *ClientStub) Execute(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	c.Called(link, body)
-	return nil
+	return nil, nil
 }
 
 func (c *ClientStub) GetURI() string {
@@ -71,7 +76,7 @@ func (c *ClientStub) DisableDebug() {
 
 func TestNew(t *testing.T) {
 	assert := assert.New(t)
-	client := New("url", Config{"config", true, true}, log)
+	client := New("url", Config{"config", true, true, ""}, log)
 	assert.IsType(client, &CosmosDB{}, "Should return CosmosDB object")
 }
 

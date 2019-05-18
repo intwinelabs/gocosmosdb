@@ -10,10 +10,23 @@ type Resource struct {
 }
 
 // Indexing policy
-// TODO: Ex/IncludePaths
 type IndexingPolicy struct {
+	Automatic     bool `json:"automatic,omitempty"`
+	IncludedPaths []struct {
+		Indexes []struct {
+			DataType  string `json:"dataType,omitempty"`
+			Kind      string `json:"kind,omitempty"`
+			Precision int    `json:"precision,omitempty`
+		} `json:"indexes,omitempty"`
+		Path string `json:"path,omitempty"`
+	} `json:"includedPaths,omitempty"`
 	IndexingMode string `json:"indexingMode,omitempty"`
-	Automatic    bool   `json:"automatic,omitempty"`
+}
+
+// Partition Key
+type PartitionKeyDef struct {
+	Kind  string   `json:"kind"`
+	Paths []string `json:"paths"`
 }
 
 // Database
@@ -26,17 +39,13 @@ type Database struct {
 // Collection
 type Collection struct {
 	Resource
-	IndexingPolicy IndexingPolicy `json:"indexingPolicy,omitempty"`
-	Docs           string         `json:"_docs,omitempty"`
-	Udf            string         `json:"_udfs,omitempty"`
-	Sporcs         string         `json:"_sporcs,omitempty"`
-	Triggers       string         `json:"_triggers,omitempty"`
-	Conflicts      string         `json:"_conflicts,omitempty"`
-}
-
-// AyscCall
-type AsyncCall struct {
-	Etag string
+	IndexingPolicy  IndexingPolicy  `json:"indexingPolicy,omitempty"`
+	PartitionKeyDef PartitionKeyDef `json:"partitionKey,omitempty"`
+	Docs            string          `json:"_docs,omitempty"`
+	Udf             string          `json:"_udfs,omitempty"`
+	Sporcs          string          `json:"_sporcs,omitempty"`
+	Triggers        string          `json:"_triggers,omitempty"`
+	Conflicts       string          `json:"_conflicts,omitempty"`
 }
 
 // QueryWithParameters
@@ -87,4 +96,12 @@ type Metrics struct {
 	WriteOutputTimeInMs            float64 `json:"writeOutputTimeInMs,omitempty"`
 	IndexUtilizationRatio          float64 `json:"indexUtilizationRatio,omitempty"`
 	RequestCharge                  float64 `json:"requestCharge,omitempty"`
+}
+
+// PartitionKeyRange partition key range model
+type PartitionKeyRange struct {
+	Resource
+	PartitionKeyRangeID string `json:"id,omitempty"`
+	MinInclusive        string `json:"minInclusive,omitempty"`
+	MaxInclusive        string `json:"maxExclusive,omitempty"`
 }
