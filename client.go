@@ -89,7 +89,7 @@ func (c *Client) Query(link, query string, ret interface{}, opts ...CallOption) 
 		return nil, err
 	}
 	r := ResourceRequest(link, req)
-	if c.Config.PartitionKey != "" {
+	if c.Config.PartitionKeyStructField != "" {
 		opts = append(opts, CrossPartition())
 	}
 	if err = c.apply(r, opts); err != nil {
@@ -111,7 +111,7 @@ func (c *Client) QueryWithParameters(link string, query *QueryWithParameters, re
 		return nil, err
 	}
 	r := ResourceRequest(link, req)
-	if c.Config.PartitionKey != "" {
+	if c.Config.PartitionKeyStructField != "" {
 		opts = append(opts, CrossPartition())
 	}
 	if err = c.apply(r, opts); err != nil {
@@ -129,8 +129,8 @@ func (c *Client) Create(link string, body, ret interface{}, opts ...CallOption) 
 	}
 	buf := bytes.NewBuffer(data)
 	c.Logger.Infof("%v", c.Config)
-	if c.Config.PartitionKey != "" {
-		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKey)
+	if c.Config.PartitionKeyStructField != "" {
+		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKeyStructField)
 		partKeyI := partKey.Interface()
 		opts = append(opts, PartitionKey(partKeyI))
 	}
@@ -144,8 +144,8 @@ func (c *Client) Replace(link string, body, ret interface{}, opts ...CallOption)
 		return nil, err
 	}
 	buf := bytes.NewBuffer(data)
-	if c.Config.PartitionKey != "" {
-		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKey)
+	if c.Config.PartitionKeyStructField != "" {
+		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKeyStructField)
 		partKeyI := partKey.Interface()
 		opts = append(opts, PartitionKey(partKeyI))
 	}
@@ -160,8 +160,8 @@ func (c *Client) Upsert(link string, body, ret interface{}, opts ...CallOption) 
 		return nil, err
 	}
 	buf := bytes.NewBuffer(data)
-	if c.Config.PartitionKey != "" {
-		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKey)
+	if c.Config.PartitionKeyStructField != "" {
+		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKeyStructField)
 		partKeyI := partKey.Interface()
 		opts = append(opts, PartitionKey(partKeyI))
 	}
@@ -188,8 +188,8 @@ func (c *Client) ReplaceAsync(link string, body, ret interface{}, opts ...CallOp
 	} else {
 		return nil, errors.New("_etag does not exist for async replace")
 	}
-	if c.Config.PartitionKey != "" {
-		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKey)
+	if c.Config.PartitionKeyStructField != "" {
+		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKeyStructField)
 		partKeyI := partKey.Interface()
 		opts = append(opts, PartitionKey(partKeyI))
 	}

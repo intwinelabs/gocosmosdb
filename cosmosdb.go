@@ -12,10 +12,11 @@ import (
 )
 
 type Config struct {
-	MasterKey    string
-	Debug        bool
-	Verbose      bool
-	PartitionKey string
+	MasterKey               string
+	Debug                   bool
+	Verbose                 bool
+	PartitionKeyStructField string // eg. "Id"
+	PartitionKeyPath        string // slash denoted path eg. "/id"
 }
 
 type CosmosDB struct {
