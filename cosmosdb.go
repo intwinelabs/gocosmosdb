@@ -21,6 +21,7 @@ type Config struct {
 
 type CosmosDB struct {
 	client Clienter
+	Config Config
 	Logger *logger.Logger
 }
 
@@ -30,7 +31,7 @@ func New(url string, config Config, log *logger.Logger) *CosmosDB {
 	client.Url = url
 	client.Config = config
 	client.Logger = log
-	return &CosmosDB{client, log}
+	return &CosmosDB{client, config,  log}
 }
 
 // GetURI returns the CosmosDB URI
@@ -272,6 +273,11 @@ func (c *CosmosDB) CreateDocument(coll string, doc interface{}, opts ...CallOpti
 	id := reflect.ValueOf(doc).Elem().FieldByName("Id")
 	if id.IsValid() && id.CanSet() && id.String() == "" {
 		id.SetString(genId())
+	}
+	if c.Config.PartitionKeyStructField != "" {
+		partKey := reflect.ValueOf(doc).Elem().FieldByName(c.Config.PartitionKeyStructField)
+		partKeyI := partKey.Interface()
+		opts = append(opts, PartitionKey(partKeyI))
 	}
 	return c.client.Create(coll+"docs/", doc, &doc, opts...)
 }
