@@ -83,7 +83,7 @@ func TestNew(t *testing.T) {
 // TODO: Test failure
 func TestReadDatabase(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client,Config{"config", true, true, "", ""},  log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadDatabase("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -91,7 +91,7 @@ func TestReadDatabase(t *testing.T) {
 
 func TestReadCollection(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadCollection("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -107,7 +107,7 @@ func TestReadDocument(t *testing.T) {
 	}
 	var doc MyDocument
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Read", "self_link_doc").Return(nil)
 	c.ReadDocument("self_link_doc", &doc)
 	client.AssertCalled(t, "Read", "self_link_doc")
@@ -115,7 +115,7 @@ func TestReadDocument(t *testing.T) {
 
 func TestReadStoredProcedure(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadStoredProcedure("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -123,7 +123,7 @@ func TestReadStoredProcedure(t *testing.T) {
 
 func TestReadUserDefinedFunction(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadUserDefinedFunction("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -131,7 +131,7 @@ func TestReadUserDefinedFunction(t *testing.T) {
 
 func TestReadDatabases(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Read", "dbs").Return(nil)
 	c.ReadDatabases()
 	client.AssertCalled(t, "Read", "dbs")
@@ -139,7 +139,7 @@ func TestReadDatabases(t *testing.T) {
 
 func TestReadCollections(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	dbLink := "dblink/"
 	client.On("Read", dbLink+"colls/").Return(nil)
 	c.ReadCollections(dbLink)
@@ -148,7 +148,7 @@ func TestReadCollections(t *testing.T) {
 
 func TestReadStoredProcedures(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	collLink := "colllink/"
 	client.On("Read", collLink+"sprocs/").Return(nil)
 	c.ReadStoredProcedures(collLink)
@@ -157,7 +157,7 @@ func TestReadStoredProcedures(t *testing.T) {
 
 func TestReadUserDefinedFunctions(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	collLink := "colllink/"
 	client.On("Read", collLink+"udfs/").Return(nil)
 	c.ReadUserDefinedFunctions(collLink)
@@ -166,7 +166,7 @@ func TestReadUserDefinedFunctions(t *testing.T) {
 
 func TestReadDocuments(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	collLink := "colllink/"
 	client.On("Read", collLink+"docs/").Return(nil)
 	c.ReadDocuments(collLink, struct{}{})
@@ -175,7 +175,7 @@ func TestReadDocuments(t *testing.T) {
 
 func TestQueryDatabases(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Query", "dbs", "SELECT * FROM ROOT r").Return(nil)
 	c.QueryDatabases("SELECT * FROM ROOT r")
 	client.AssertCalled(t, "Query", "dbs", "SELECT * FROM ROOT r")
@@ -183,7 +183,7 @@ func TestQueryDatabases(t *testing.T) {
 
 func TestQueryCollections(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Query", "db_self_link/colls/", "SELECT * FROM ROOT r").Return(nil)
 	c.QueryCollections("db_self_link/", "SELECT * FROM ROOT r")
 	client.AssertCalled(t, "Query", "db_self_link/colls/", "SELECT * FROM ROOT r")
@@ -191,7 +191,7 @@ func TestQueryCollections(t *testing.T) {
 
 func TestQueryStoredProcedures(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Query", "colls_self_link/sprocs/", "SELECT * FROM ROOT r").Return(nil)
 	c.QueryStoredProcedures("colls_self_link/", "SELECT * FROM ROOT r")
 	client.AssertCalled(t, "Query", "colls_self_link/sprocs/", "SELECT * FROM ROOT r")
@@ -199,7 +199,7 @@ func TestQueryStoredProcedures(t *testing.T) {
 
 func TestQueryUserDefinedFunctions(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Query", "colls_self_link/udfs/", "SELECT * FROM ROOT r").Return(nil)
 	c.QueryUserDefinedFunctions("colls_self_link/", "SELECT * FROM ROOT r")
 	client.AssertCalled(t, "Query", "colls_self_link/udfs/", "SELECT * FROM ROOT r")
@@ -207,7 +207,7 @@ func TestQueryUserDefinedFunctions(t *testing.T) {
 
 func TestQueryDocuments(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	collLink := "coll_self_link/"
 	client.On("Query", collLink+"docs/", "SELECT * FROM ROOT r").Return(nil)
 	c.QueryDocuments(collLink, "SELECT * FROM ROOT r", struct{}{})
@@ -216,7 +216,7 @@ func TestQueryDocuments(t *testing.T) {
 
 func TestCreateDatabase(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Create", "dbs", "{}").Return(nil)
 	c.CreateDatabase("{}")
 	client.AssertCalled(t, "Create", "dbs", "{}")
@@ -224,7 +224,7 @@ func TestCreateDatabase(t *testing.T) {
 
 func TestCreateCollection(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Create", "dbs/colls/", "{}").Return(nil)
 	c.CreateCollection("dbs/", "{}")
 	client.AssertCalled(t, "Create", "dbs/colls/", "{}")
@@ -232,7 +232,7 @@ func TestCreateCollection(t *testing.T) {
 
 func TestCreateStoredProcedure(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Create", "dbs/colls/sprocs/", `{"id":"fn"}`).Return(nil)
 	c.CreateStoredProcedure("dbs/colls/", `{"id":"fn"}`)
 	client.AssertCalled(t, "Create", "dbs/colls/sprocs/", `{"id":"fn"}`)
@@ -240,7 +240,7 @@ func TestCreateStoredProcedure(t *testing.T) {
 
 func TestCreateUserDefinedFunction(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Create", "dbs/colls/udfs/", `{"id":"fn"}`).Return(nil)
 	c.CreateUserDefinedFunction("dbs/colls/", `{"id":"fn"}`)
 	client.AssertCalled(t, "Create", "dbs/colls/udfs/", `{"id":"fn"}`)
@@ -248,7 +248,7 @@ func TestCreateUserDefinedFunction(t *testing.T) {
 
 func TestCreateDocument(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	// TODO: test error situation, without id, etc...
 	var doc Document
 	client.On("Create", "dbs/colls/docs/", &doc).Return(nil)
@@ -259,7 +259,7 @@ func TestCreateDocument(t *testing.T) {
 
 func TestDeleteResource(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 
 	client.On("Delete", "self_link_db").Return(nil)
 	c.DeleteDatabase("self_link_db")
@@ -284,7 +284,7 @@ func TestDeleteResource(t *testing.T) {
 
 func TestReplaceDatabase(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
 	client.On("Replace", "db_link", "{}").Return(nil)
 	c.ReplaceDatabase("db_link", "{}")
 	client.AssertCalled(t, "Replace", "db_link", "{}")
@@ -292,7 +292,7 @@ func TestReplaceDatabase(t *testing.T) {
 
 func TestReplaceDocument(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Replace", "doc_link", "{}").Return(nil)
 	c.ReplaceDocument("doc_link", "{}")
 	client.AssertCalled(t, "Replace", "doc_link", "{}")
@@ -300,7 +300,7 @@ func TestReplaceDocument(t *testing.T) {
 
 func TestReplaceStoredProcedure(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Replace", "sproc_link", "{}").Return(nil)
 	c.ReplaceStoredProcedure("sproc_link", "{}")
 	client.AssertCalled(t, "Replace", "sproc_link", "{}")
@@ -308,7 +308,7 @@ func TestReplaceStoredProcedure(t *testing.T) {
 
 func TestReplaceUserDefinedFunction(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Replace", "udf_link", "{}").Return(nil)
 	c.ReplaceUserDefinedFunction("udf_link", "{}")
 	client.AssertCalled(t, "Replace", "udf_link", "{}")
@@ -316,7 +316,7 @@ func TestReplaceUserDefinedFunction(t *testing.T) {
 
 func TestExecuteStoredProcedure(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Execute", "sproc_link", "{}").Return(nil)
 	c.ExecuteStoredProcedure("sproc_link", "{}", struct{}{})
 	client.AssertCalled(t, "Execute", "sproc_link", "{}")

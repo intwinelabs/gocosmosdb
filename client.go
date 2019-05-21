@@ -128,12 +128,6 @@ func (c *Client) Create(link string, body, ret interface{}, opts ...CallOption) 
 		return nil, err
 	}
 	buf := bytes.NewBuffer(data)
-	c.Logger.Infof("%v", c.Config)
-	if c.Config.PartitionKeyStructField != "" {
-		partKey := reflect.ValueOf(body).Elem().FieldByName(c.Config.PartitionKeyStructField)
-		partKeyI := partKey.Interface()
-		opts = append(opts, PartitionKey(partKeyI))
-	}
 	return c.method("POST", link, http.StatusCreated, ret, buf, opts...)
 }
 
