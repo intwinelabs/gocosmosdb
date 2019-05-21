@@ -31,7 +31,7 @@ func New(url string, config Config, log *logger.Logger) *CosmosDB {
 	client.Url = url
 	client.Config = config
 	client.Logger = log
-	return &CosmosDB{client, config,  log}
+	return &CosmosDB{client, config, log}
 }
 
 // GetURI returns the CosmosDB URI
@@ -302,8 +302,8 @@ func (c *CosmosDB) DeleteCollection(link string) (*Response, error) {
 }
 
 // Delete collection
-func (c *CosmosDB) DeleteDocument(link string) (*Response, error) {
-	return c.client.Delete(link)
+func (c *CosmosDB) DeleteDocument(link string, opts ...CallOption) (*Response, error) {
+	return c.client.Delete(link, opts...)
 }
 
 // Delete stored procedure
