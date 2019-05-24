@@ -66,6 +66,11 @@ type Document struct {
 	Attachments string `json:"attachments,omitempty"`
 }
 
+// Expirable
+type Expirable struct {
+	TTL int64 `json:"ttl"`
+}
+
 // Stored Procedure
 type Sproc struct {
 	Resource

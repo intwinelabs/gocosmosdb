@@ -278,6 +278,8 @@ func main() {
 ```go
 type User struct {
 	gocosmosdb.Document
+	// To set docuemnts TTL
+	gocosmosdb.Expirable
 	// Your external fields
 	Name    string `json:"name,omitempty"`
 	Email   string `json:"email,omitempty"`
@@ -290,6 +292,8 @@ func main() {
 	user.Id = "uuid"
 	user.Name = "Bad MF"
 	user.Email = "badmf@intwine.io"
+	// This tells CosmosDB to expire the doc in 24 hours
+	user.SetTTL(24 * time.Hour)
 	err := client.CreateDocument("coll_self_link | constructed_uri", &doc)
 	if err != nil {
 		log.Fatal(err)	
