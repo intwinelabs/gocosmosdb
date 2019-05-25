@@ -83,6 +83,7 @@ func (c *Client) Delete(link string, opts ...CallOption) (*Response, error) {
 
 // Query resource
 func (c *Client) Query(link, query string, ret interface{}, opts ...CallOption) (*Response, error) {
+	query = escapeSQL(query)
 	buf := bytes.NewBufferString(querify(query))
 	req, err := http.NewRequest("POST", path(c.Url, link), buf)
 	if err != nil {
@@ -101,6 +102,7 @@ func (c *Client) Query(link, query string, ret interface{}, opts ...CallOption) 
 
 // QueryWithParameters resource
 func (c *Client) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}, opts ...CallOption) (*Response, error) {
+	query.Query = escapeSQL(query.Query)
 	q, err := stringify(query)
 	if err != nil {
 		return nil, err
