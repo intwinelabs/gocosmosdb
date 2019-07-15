@@ -231,7 +231,7 @@ func (c *Client) do(r *Request, status int, data interface{}) (*Response, error)
 	if c.Config.Debug && c.Config.Verbose {
 		c.Logger.Infof("CosmosDB Request: %s", spew.Sdump(resp.Request))
 		c.Logger.Infof("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
-		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
+		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.ContentLength))
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != status {
@@ -249,7 +249,7 @@ func (c *Client) do(r *Request, status int, data interface{}) (*Response, error)
 	if c.Config.Debug && c.Config.Verbose {
 		c.Logger.Infof("CosmosDB Request: %s", spew.Sdump(resp.Request))
 		c.Logger.Infof("CosmosDB Response Headers: %s", spew.Sdump(resp.Header))
-		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.Header))
+		c.Logger.Infof("CosmosDB Response Content-Length: %s", spew.Sdump(resp.ContentLength))
 		c.Logger.Infof("CosmosDB Response Content: %s", spew.Sdump(data))
 	}
 	return &Response{resp.Header}, readJson(resp.Body, data)
