@@ -15,6 +15,12 @@ func (r *Response) Continuation() string {
 	return r.Header.Get(HeaderContinuation)
 }
 
+// SessionToken returns session token for session consistent request.
+// Pass this value to next request to maintain session consistency documents.
+func (r *Response) SessionToken() string {
+	return r.Header.Get(HeaderSessionToken)
+}
+
 type statusCodeValidatorFunc func(statusCode int) bool
 
 func expectStatusCode(expected int) statusCodeValidatorFunc {

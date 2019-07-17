@@ -110,3 +110,15 @@ type PartitionKeyRange struct {
 	MinInclusive        string `json:"minInclusive,omitempty"`
 	MaxInclusive        string `json:"maxExclusive,omitempty"`
 }
+
+// PagableQuery
+type PagableQuery struct {
+	client       *CosmosDB
+	coll         string
+	query        *QueryWithParameters
+	sessionToken CallOption
+	continuation CallOption
+	limit        CallOption
+	offset       int64
+	docs         interface{}
+}
