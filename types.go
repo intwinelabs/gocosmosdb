@@ -50,12 +50,12 @@ type Collection struct {
 
 // QueryWithParameters
 type QueryWithParameters struct {
-	Query      string          `json:"query"`
-	Parameters []QueryParamter `json:"parameters"`
+	Query      string           `json:"query"`
+	Parameters []QueryParameter `json:"parameters"`
 }
 
 // QueryParameter
-type QueryParamter struct {
+type QueryParameter struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
 }
