@@ -205,7 +205,7 @@ func (c *CosmosDB) QueryDocuments(coll, query string, docs interface{}, opts ...
 }
 
 // Read all documents in a collection that satisfy a query with parameters
-func (c *CosmosDB) QueryDocumentsWithParmeters(coll string, query *QueryWithParameters, docs interface{}, opts ...CallOption) (err error) {
+func (c *CosmosDB) QueryDocumentsWithParameters(coll string, query *QueryWithParameters, docs interface{}, opts ...CallOption) (err error) {
 	data := struct {
 		Documents interface{} `json:"Documents,omitempty"`
 		Count     int         `json:"_count,omitempty"`
