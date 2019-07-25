@@ -156,3 +156,27 @@ func ThroughputRUs(rus int) CallOption {
 		return nil
 	}
 }
+
+// PartitionKeyRangeID adds the partition key range header
+func PartitionKeyRangeID(id int) CallOption {
+	return func(r *Request) error {
+		r.Header.Set(HeaderPartitionKeyRangeID, strconv.Itoa(id))
+		return nil
+	}
+}
+
+// EnableQueryScan add the scan header
+func EnableQueryScan() CallOption {
+	return func(r *Request) error {
+		r.Header.Set(HeaderEnableScan, "true")
+		return nil
+	}
+}
+
+// EnableParallelizeCrossPartitionQuery add the parallelize header
+func EnableParallelizeCrossPartitionQuery() CallOption {
+	return func(r *Request) error {
+		r.Header.Set(HeaderParalelizeCrossPartition, "true")
+		return nil
+	}
+}
