@@ -13,7 +13,6 @@ import (
 
 var log = logger.New()
 
-// I more interested in the request, instead of the response
 type RequestRecorder struct {
 	Header http.Header
 	Body   string
@@ -69,7 +68,7 @@ func TestGetURI(t *testing.T) {
 	s := ServerFactory(`{"_colls": "colls"}`, 500)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -86,7 +85,7 @@ func TestGetConfig(t *testing.T) {
 	s := ServerFactory(`{"_colls": "colls"}`, 500)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -106,7 +105,7 @@ func TestRead(t *testing.T) {
 	s := ServerFactory(`{"_colls": "colls"}`, 500)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -130,7 +129,7 @@ func TestQuery(t *testing.T) {
 	s := ServerFactory(`{"_colls": "colls"}`, 500)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -156,7 +155,7 @@ func TestCreate(t *testing.T) {
 	s.SetStatus(http.StatusCreated)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -189,7 +188,7 @@ func TestDelete(t *testing.T) {
 	s.SetStatus(http.StatusNoContent)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -212,7 +211,7 @@ func TestReplace(t *testing.T) {
 	s.SetStatus(http.StatusOK)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
@@ -245,7 +244,7 @@ func TestExecute(t *testing.T) {
 	s.SetStatus(http.StatusOK)
 	defer s.Close()
 	client := &Client{
-		Url: s.URL,
+		URI: s.URL,
 		Config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},

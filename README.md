@@ -1,49 +1,16 @@
 # gocosmosdb
-> Go client driver for Azure CosmosDB 
+> Go client for Azure CosmosDB SQL API
 
-### Note
-This library is derived from `github.com/nerdylikeme/go-documentdb`(github.com/nerdylikeme/go-documentdb)
+### Key Features
+- Client HTTP Connection Pooling 
+- Retry With Backoff
+- TTL for documents
+- Advanced Debugging
 
-TODO: Add documentation on stored procedurs and user defined functions
-
-## Table of contents:
-- [Get Started](#get-started)
-- [Examples](#examples)
-- [Databases](#databases)
-  - [Get](#readdatabase)
-  - [Query](#querydatabases)
-  - [List](#readdatabases)
-  - [Create](#createdatabase)
-  - [Replace](#replacedatabase)
-  - [Delete](#deletedatabase)
-- [Collections](#collections)
-  - [Get](#readcollection)
-  - [Query](#querycollections)
-  - [List](#readcollection)
-  - [Create](#createcollection)
-  - [Delete](#deletecollection)
-- [Documents](#documents)
-  - [Get](#readdocument)
-  - [Query](#querydocuments)
-  - [List](#readdocuments)
-  - [Create](#createdocument)
-  - [Replace](#replacedocument)
-  - [Delete](#deletedocument)
-- [StoredProcedures](#storedprocedures)
-  - [Get](#readstoredprocedure)
-  - [Query](#querystoredprocedures)
-  - [List](#readstoredprocedures)
-  - [Create](#createstoredprocedure)
-  - [Replace](#replacestoredprocedure)
-  - [Delete](#deletestoredprocedure)
-  - [Execute](#executestoredprocedure)
-- [UserDefinedFunctions](#userdefinedfunctions)
-  - [Get](#readuserdefinedfunction)
-  - [Query](#queryuserdefinedfunctions)
-  - [List](#readuserdefinedfunctions)
-  - [Create](#createuserdefinedfunction)
-  - [Replace](#replaceuserdefinedfunction)
-  - [Delete](#deleteuserdefinedfunction)
+### Credits
+This library is derived from:
+- https://github.com/nerdylikeme/go-documentdb
+- https://github.com/a8m/documentdb
 
 ### Get Started
 
@@ -51,7 +18,6 @@ TODO: Add documentation on stored procedurs and user defined functions
 ```bash
 $ go get github.com/intwinelabs/gocosomsdb
 ```
-[TOC](#Table_of_contents)
 
 #### Add to your project
 ```go
@@ -69,19 +35,6 @@ func main() {
 	fmt.Println(dbs)
 }
 ```
-[TOC](#Table_of_contents)
-
-### Databases
-
-#### ReadDatabase
-```go
-db, err := client.ReadDatabase("self_link | constructed_uri | constructed_uri")
-if err != nil {
-	log.Fatal(err)	
-}
-fmt.Println(db.Self, db.Id)
-```
-[TOC](#Table_of_contents)
 
 #### QueryDatabases
 ```go
@@ -95,17 +48,6 @@ for _, db := range dbs {
 ```
 [TOC](#Table_of_contents)
 
-#### ReadDatabases
-```go
-dbs, err := client.ReadDatabases()
-if err != nil {
-	log.Fatal(err)	
-}
-for _, db := range dbs {
-	fmt.Println("DB Name:", db.Id)
-}
-```
-[TOC](#Table_of_contents)
 
 #### CreateDatabase
 ```go
@@ -148,16 +90,6 @@ if err != nil {
 [TOC](#Table_of_contents)
 
 ### Collections
-
-#### ReadCollection
-```go
-coll, err := client.ReadCollection("self_link | constructed_uri")
-if err != nil {
-	log.Fatal(err)	
-}
-fmt.Println(coll.Self, coll.Id)
-```
-[TOC](#Table_of_contents)
 
 #### QueryCollections
 ```go
@@ -208,27 +140,6 @@ if err != nil {
 ```
 [TOC](#Table_of_contents)
 
-### Documents
-
-#### ReadDocument
-```go
-type Document struct {
-	gocosmosdb.Document
-	// Your external fields
-	Name    string `json:"name,omitempty"`
-	Email   string `json:"email,omitempty"`
-}
-
-func main() {
-	var doc Document
-	err = client.ReadDocument("self_link | constructed_uri", &doc)
-	if err != nil {
-		log.Fatal(err)	
-	}
-	fmt.Println("Document Name:", doc.Name)
-}
-```
-[TOC](#Table_of_contents)
 
 #### QueryDocuments
 ```go
@@ -252,7 +163,7 @@ func main() {
 ```
 [TOC](#Table_of_contents)
 
-#### ReadDocuments
+#### ReDocuments
 ```go
 type User struct {
 	gocosmosdb.Document
@@ -333,37 +244,7 @@ if err != nil {
 ```
 [TOC](#Table_of_contents)
 
-### StoredProcedures
 
-#### ReadStoredProcedure
-```go
-client.ReadStoredProcedure()
-```
-[TOC](#Table_of_contents)
-
-#### QueryStoredProcedure
-```go
-client.QueryStoredProcedure()
-```
-[TOC](#Table_of_contents)
-
-#### CreateStoredProcedure
-```go
-client.ReadStoredProcedure()
-```
-[TOC](#Table_of_contents)
-
-#### ReplaceStoredProcedure
-```go
-client.ReplaceStoredProcedure()
-```
-[TOC](#Table_of_contents)
-
-#### DeleteStoredProcedure
-```go
-client.DeleteStoredProcedure()
-```
-[TOC](#Table_of_contents)
 
 #### ExecuteStoredProcedure
 ```go
@@ -373,36 +254,4 @@ if err != nil {
 	log.Fatal(err)
 }
 ```
-[TOC](#Table_of_contents)
 
-### UserDefinedFunctions
-
-#### ReadUserDefinedFunction
-```go
-client.ReadUserDefinedFunction()
-```
-[TOC](#Table_of_contents)
-
-#### QueryUserDefinedFunction
-```go
-client.QueryUserDefinedFunction()
-```
-[TOC](#Table_of_contents)
-
-#### CreateUserDefinedFunction
-```go
-client.ReadUserDefinedFunction()
-```
-[TOC](#Table_of_contents)
-
-#### ReplaceUserDefinedFunction
-```go
-client.ReplaceUserDefinedFunction()
-```
-[TOC](#Table_of_contents)
-
-#### DeleteUserDefinedFunction
-```go
-client.DeleteUserDefinedFunction()
-```
-[TOC](#Table_of_contents)

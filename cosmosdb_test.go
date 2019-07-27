@@ -4,75 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
-
-type ClientStub struct {
-	mock.Mock
-}
-
-func (c *ClientStub) Read(link string, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link)
-	return nil, nil
-}
-
-func (c *ClientStub) Query(link, query string, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, query)
-	return nil, nil
-}
-
-func (c *ClientStub) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, query)
-	return nil, nil
-}
-
-func (c *ClientStub) Create(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, body)
-	return nil, nil
-}
-
-func (c *ClientStub) Upsert(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, body)
-	return nil, nil
-}
-
-func (c *ClientStub) Delete(link string, opts ...CallOption) (*Response, error) {
-	c.Called(link)
-	return nil, nil
-}
-
-func (c *ClientStub) Replace(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, body)
-	return nil, nil
-}
-
-func (c *ClientStub) ReplaceAsync(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, body)
-	return nil, nil
-}
-
-func (c *ClientStub) Execute(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
-	c.Called(link, body)
-	return nil, nil
-}
-
-func (c *ClientStub) GetURI() string {
-	c.Called()
-	return ""
-}
-
-func (c *ClientStub) GetConfig() Config {
-	c.Called()
-	return Config{}
-}
-
-func (c *ClientStub) EnableDebug() {
-	c.Called()
-}
-
-func (c *ClientStub) DisableDebug() {
-	c.Called()
-}
 
 func TestNew(t *testing.T) {
 	assert := assert.New(t)
@@ -80,10 +12,9 @@ func TestNew(t *testing.T) {
 	assert.IsType(client, &CosmosDB{}, "Should return CosmosDB object")
 }
 
-// TODO: Test failure
 func TestReadDatabase(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client,Config{"config", true, true, "", ""},  log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadDatabase("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -107,7 +38,7 @@ func TestReadDocument(t *testing.T) {
 	}
 	var doc MyDocument
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{MasterKey: "config", Debug: true, Verbose: true, PartitionKeyStructField: "", PartitionKeyPath: ""}, log}
 	client.On("Read", "self_link_doc").Return(nil)
 	c.ReadDocument("self_link_doc", &doc)
 	client.AssertCalled(t, "Read", "self_link_doc")
@@ -115,7 +46,7 @@ func TestReadDocument(t *testing.T) {
 
 func TestReadStoredProcedure(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadStoredProcedure("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -123,7 +54,7 @@ func TestReadStoredProcedure(t *testing.T) {
 
 func TestReadUserDefinedFunction(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Read", "self_link").Return(nil)
 	c.ReadUserDefinedFunction("self_link")
 	client.AssertCalled(t, "Read", "self_link")
@@ -166,7 +97,7 @@ func TestReadUserDefinedFunctions(t *testing.T) {
 
 func TestReadDocuments(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	collLink := "colllink/"
 	client.On("Read", collLink+"docs/").Return(nil)
 	c.ReadDocuments(collLink, struct{}{})
@@ -175,7 +106,7 @@ func TestReadDocuments(t *testing.T) {
 
 func TestQueryDatabases(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Query", "dbs", "SELECT * FROM ROOT r").Return(nil)
 	c.QueryDatabases("SELECT * FROM ROOT r")
 	client.AssertCalled(t, "Query", "dbs", "SELECT * FROM ROOT r")
@@ -232,7 +163,7 @@ func TestCreateCollection(t *testing.T) {
 
 func TestCreateStoredProcedure(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Create", "dbs/colls/sprocs/", `{"id":"fn"}`).Return(nil)
 	c.CreateStoredProcedure("dbs/colls/", `{"id":"fn"}`)
 	client.AssertCalled(t, "Create", "dbs/colls/sprocs/", `{"id":"fn"}`)
@@ -240,7 +171,7 @@ func TestCreateStoredProcedure(t *testing.T) {
 
 func TestCreateUserDefinedFunction(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Create", "dbs/colls/udfs/", `{"id":"fn"}`).Return(nil)
 	c.CreateUserDefinedFunction("dbs/colls/", `{"id":"fn"}`)
 	client.AssertCalled(t, "Create", "dbs/colls/udfs/", `{"id":"fn"}`)
@@ -248,7 +179,7 @@ func TestCreateUserDefinedFunction(t *testing.T) {
 
 func TestCreateDocument(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	// TODO: test error situation, without id, etc...
 	var doc Document
 	client.On("Create", "dbs/colls/docs/", &doc).Return(nil)
@@ -259,7 +190,7 @@ func TestCreateDocument(t *testing.T) {
 
 func TestDeleteResource(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 
 	client.On("Delete", "self_link_db").Return(nil)
 	c.DeleteDatabase("self_link_db")
@@ -284,7 +215,7 @@ func TestDeleteResource(t *testing.T) {
 
 func TestReplaceDatabase(t *testing.T) {
 	client := &ClientStub{}
-	c := &CosmosDB{client, Config{"config", true, true, "", ""},log}
+	c := &CosmosDB{client, Config{"config", true, true, "", ""}, log}
 	client.On("Replace", "db_link", "{}").Return(nil)
 	c.ReplaceDatabase("db_link", "{}")
 	client.AssertCalled(t, "Replace", "db_link", "{}")

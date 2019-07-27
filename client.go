@@ -9,35 +9,43 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/intwinelabs/logger"
 	"github.com/moul/http2curl"
 )
 
-type Clienter interface {
-	Read(link string, ret interface{}, opts ...CallOption) (*Response, error)
-	Delete(link string, opts ...CallOption) (*Response, error)
-	Query(link string, query string, ret interface{}, opts ...CallOption) (*Response, error)
-	QueryWithParameters(link string, query *QueryWithParameters, ret interface{}, opts ...CallOption) (*Response, error)
-	Create(link string, body, ret interface{}, opts ...CallOption) (*Response, error)
-	Upsert(link string, body, ret interface{}, opts ...CallOption) (*Response, error)
-	Replace(link string, body, ret interface{}, opts ...CallOption) (*Response, error)
-	ReplaceAsync(link string, body, ret interface{}, opts ...CallOption) (*Response, error)
-	Execute(link string, body, ret interface{}, opts ...CallOption) (*Response, error)
-	GetURI() string
-	GetConfig() Config
-	EnableDebug()
-	DisableDebug()
-}
-
+// Client - struct to hold the underlying SQL REST API client
 type Client struct {
-	Url    string
+	URI    string
 	Config Config
-	http.Client
+	retryablehttp.Client
 	Logger *logger.Logger
 }
 
+func new(conf *Config) *Client {
+	client := &Client{}
+	var zeroDuration time.Duration
+	if conf.RetryWaitMin == zeroDuration {
+		client.RetryWaitMin = 10 * time.Millisecond
+	} else {
+		client.RetryWaitMin = conf.RetryWaitMin
+	}
+	if conf.RetryWaitMax == zeroDuration {
+		client.RetryWaitMax = 50 * time.Millisecond
+	} else {
+		client.RetryWaitMax = conf.RetryWaitMax
+	}
+	if conf.Pooled {
+		client.HTTPClient.Transport = cleanhttp.DefaultPooledTransport()
+	}
+	return client
+}
+
+// apply - iterates over all opts and runs the functions to apply additional request headers
 func (c *Client) apply(r *Request, opts []CallOption) (err error) {
 	if err = r.DefaultHeaders(c.Config.MasterKey); err != nil {
 		return err
@@ -51,41 +59,41 @@ func (c *Client) apply(r *Request, opts []CallOption) (err error) {
 	return nil
 }
 
-// GetURI return a clients URI
+// GetURI - returns a clients URI
 func (c *Client) GetURI() string {
-	return c.Url
+	return c.URI
 }
 
-// GetConfig return a clients URI
+// GetConfig - return a clients URI
 func (c *Client) GetConfig() Config {
 	return c.Config
 }
 
-// EnableDebug enables the CosmosDB debug in config
+// EnableDebug - enables the CosmosDB debug mode
 func (c *Client) EnableDebug() {
 	c.Config.Debug = true
 }
 
-// DisableDebug disables the CosmosDB debug in config
+// DisableDebug - disables the CosmosDB debug mode
 func (c *Client) DisableDebug() {
 	c.Config.Debug = false
 }
 
-// Read resource by self link
+// Read - reads a resource by self link
 func (c *Client) Read(link string, ret interface{}, opts ...CallOption) (*Response, error) {
 	return c.method("GET", link, http.StatusOK, ret, &bytes.Buffer{}, opts...)
 }
 
-// Delete resource by self link
+// Delete - deletes a resource by self link
 func (c *Client) Delete(link string, opts ...CallOption) (*Response, error) {
 	return c.method("DELETE", link, http.StatusNoContent, nil, &bytes.Buffer{}, opts...)
 }
 
-// Query resource
+// Query - queries a resource
 func (c *Client) Query(link, query string, ret interface{}, opts ...CallOption) (*Response, error) {
 	query = escapeSQL(query)
 	buf := bytes.NewBufferString(querify(query))
-	req, err := http.NewRequest("POST", path(c.Url, link), buf)
+	req, err := http.NewRequest("POST", path(c.URI, link), buf)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +108,7 @@ func (c *Client) Query(link, query string, ret interface{}, opts ...CallOption) 
 	return c.do(r, http.StatusOK, ret)
 }
 
-// QueryWithParameters resource
+// QueryWithParameters - queries a resource
 func (c *Client) QueryWithParameters(link string, query *QueryWithParameters, ret interface{}, opts ...CallOption) (*Response, error) {
 	query.Query = escapeSQL(query.Query)
 	q, err := stringify(query)
@@ -108,7 +116,7 @@ func (c *Client) QueryWithParameters(link string, query *QueryWithParameters, re
 		return nil, err
 	}
 	buf := bytes.NewBuffer(q)
-	req, err := http.NewRequest("POST", path(c.Url, link), buf)
+	req, err := http.NewRequest("POST", path(c.URI, link), buf)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +131,7 @@ func (c *Client) QueryWithParameters(link string, query *QueryWithParameters, re
 	return c.do(r, http.StatusOK, ret)
 }
 
-// Create resource
+// Create - creates a resource
 func (c *Client) Create(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	data, err := stringify(body)
 	if err != nil {
@@ -133,7 +141,7 @@ func (c *Client) Create(link string, body, ret interface{}, opts ...CallOption) 
 	return c.method("POST", link, http.StatusCreated, ret, buf, opts...)
 }
 
-// Replace resource
+// Replace - replaces a resource
 func (c *Client) Replace(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	data, err := stringify(body)
 	if err != nil {
@@ -148,7 +156,7 @@ func (c *Client) Replace(link string, body, ret interface{}, opts ...CallOption)
 	return c.method("PUT", link, http.StatusOK, ret, buf, opts...)
 }
 
-// Upsert resource
+// Upsert - upserts a resource
 func (c *Client) Upsert(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	opts = append(opts, Upsert())
 	data, err := stringify(body)
@@ -164,7 +172,7 @@ func (c *Client) Upsert(link string, body, ret interface{}, opts ...CallOption) 
 	return c.method(http.MethodPost, link, http.StatusOK, ret, buf, opts...)
 }
 
-// ReplaceAsync resource
+// ReplaceAsync - replaces a resource
 func (c *Client) ReplaceAsync(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	data, err := stringify(body)
 	if err != nil {
@@ -193,7 +201,7 @@ func (c *Client) ReplaceAsync(link string, body, ret interface{}, opts ...CallOp
 	return c.method("PUT", link, http.StatusOK, ret, buf, opts...)
 }
 
-// Replace resource
+// Execute - executes a resource
 func (c *Client) Execute(link string, body, ret interface{}, opts ...CallOption) (*Response, error) {
 	data, err := stringify(body)
 	if err != nil {
@@ -203,9 +211,9 @@ func (c *Client) Execute(link string, body, ret interface{}, opts ...CallOption)
 	return c.method("POST", link, http.StatusOK, ret, buf, opts...)
 }
 
-// Private generic method resource
+// method - generic method for a resource
 func (c *Client) method(method, link string, status int, ret interface{}, body *bytes.Buffer, opts ...CallOption) (*Response, error) {
-	req, err := http.NewRequest(method, path(c.Url, link), body)
+	req, err := http.NewRequest(method, path(c.URI, link), body)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +224,7 @@ func (c *Client) method(method, link string, status int, ret interface{}, body *
 	return c.do(r, status, ret)
 }
 
-// Private Do function, DRY
+// do - private do function
 func (c *Client) do(r *Request, status int, data interface{}) (*Response, error) {
 	if c.Config.Debug {
 		r.QueryMetricsHeaders()
@@ -224,7 +232,11 @@ func (c *Client) do(r *Request, status int, data interface{}) (*Response, error)
 		curl, _ := http2curl.GetCurlCommand(r.Request)
 		c.Logger.Infof("CURL: %s", curl)
 	}
-	resp, err := c.Do(r.Request)
+	rr, err := retryablehttp.FromRequest(r.Request)
+	if err != nil {
+		return nil, fmt.Errorf("error creating retryable request: %s", err)
+	}
+	resp, err := c.Do(rr)
 	if err != nil {
 		return nil, fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
 	}
@@ -255,14 +267,14 @@ func (c *Client) do(r *Request, status int, data interface{}) (*Response, error)
 	return &Response{resp.Header}, readJson(resp.Body, data)
 }
 
-// Generate link
+// path - generates a link
 func path(url string, args ...string) (link string) {
 	args = append([]string{url}, args...)
 	link = strings.Join(args, "/")
 	return
 }
 
-// Read json response to given interface(struct, map, ..)
+// readJson - response to given interface(struct, map, ..)
 func readJson(reader io.Reader, data interface{}) error {
 	return json.NewDecoder(reader).Decode(&data)
 }
