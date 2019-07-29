@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/intwinelabs/logger"
@@ -72,39 +73,73 @@ func ServerFactory(resp ...interface{}) *MockServer {
 
 func TestGetURI(t *testing.T) {
 	assert := assert.New(t)
-	s := ServerFactory(`{"_colls": "colls"}`, 500)
-	defer s.Close()
 	client := &apiClient{
-		uri: s.URL,
+		uri: "url",
 		config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
 		logger: log,
 	}
-
-	// First call
 	uri := client.getURI()
-	assert.Equal(s.URL, uri)
+	assert.Equal("url", uri)
 }
 
 func TestGetConfig(t *testing.T) {
 	assert := assert.New(t)
-	s := ServerFactory(`{"_colls": "colls"}`, 500)
-	defer s.Close()
 	client := &apiClient{
-		uri: s.URL,
+		uri: "url",
 		config: Config{
 			MasterKey: "YXJpZWwNCg==",
 		},
 		logger: log,
 	}
 
-	// First call
 	expConf := Config{
 		MasterKey: "YXJpZWwNCg==",
 	}
 	conf := client.getConfig()
 	assert.Equal(expConf, conf)
+}
+
+func TestBadAuth(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(`{"_colls": "colls"}`)
+	defer s.Close()
+	client := &apiClient{
+		uri: s.URL,
+		config: Config{
+			MasterKey: "badkey",
+		},
+		logger: log,
+	}
+
+	var db Database
+	_, err := client.read("dbs/b7NTAS==/", &db)
+	assert.NotNil(err, "err should not be nil")
+	assert.Contains(err.Error(), "base64 input is corrupt, check CosmosDB key")
+}
+
+func TestRetryableClient(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(500, 500, 500, 500)
+	defer s.Close()
+	retryable := retryablehttp.NewClient()
+	retryable.RetryWaitMin = 100 * time.Millisecond
+	retryable.RetryWaitMax = 100 * time.Millisecond
+	retryable.RetryMax = 2
+	client := &apiClient{
+		uri: s.URL,
+		config: Config{
+			MasterKey: "YXJpZWwNCg==",
+		},
+		httpClient: retryable,
+		logger:     log,
+	}
+
+	// First call then retry and ultimately fail
+	var db Database
+	_, err := client.read("dbs/b7NCAA==/colls/Ad352/", &db)
+	assert.Contains(err.Error(), "giving up after 3 attempts")
 }
 
 func TestRead(t *testing.T) {

@@ -3,6 +3,7 @@ package gocosmosdb
 import (
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -13,6 +14,38 @@ func TestNew(t *testing.T) {
 	assert := assert.New(t)
 	client := New("url", Config{MasterKey: "config"}, log)
 	assert.IsType(client, &CosmosDB{}, "Should return CosmosDB object")
+	conf := client.GetConfig()
+	assert.Equal(Config{MasterKey: "config"}, conf)
+	uri := client.GetURI()
+	assert.Equal("url", uri)
+	client.EnableDebug()
+	conf = client.GetConfig()
+	assert.Equal(true, conf.Debug)
+	client.DisableDebug()
+	conf = client.GetConfig()
+	assert.Equal(false, conf.Debug)
+}
+
+func TestNewRetryable(t *testing.T) {
+	assert := assert.New(t)
+	c := Config{
+		MasterKey:    "config",
+		RetryWaitMin: 100 * time.Millisecond,
+		RetryWaitMax: 100 * time.Millisecond,
+		RetryMax:     2,
+		Pooled:       true,
+	}
+	client := New("url", c, log)
+	assert.IsType(client, &CosmosDB{}, "Should return CosmosDB object")
+	conf := client.GetConfig()
+	assert.Equal(conf.RetryWaitMin, 100*time.Millisecond)
+	assert.Equal(client.client.httpClient.RetryWaitMin, 100*time.Millisecond)
+	assert.Equal(conf.RetryWaitMax, 100*time.Millisecond)
+	assert.Equal(client.client.httpClient.RetryWaitMax, 100*time.Millisecond)
+	assert.Equal(conf.RetryMax, 2)
+	assert.Equal(client.client.httpClient.RetryMax, 2)
+	assert.Equal(conf.Pooled, true)
+	assert.NotNil(client.client.httpClient.HTTPClient.Transport)
 }
 
 func TestReadDatabase(t *testing.T) {
@@ -32,6 +65,25 @@ func TestReadDatabase(t *testing.T) {
 	db, err := client.ReadDatabase("dbs/qicAAA==")
 	assert.Nil(err)
 	assert.Equal("iot2", db.Id)
+}
+
+func TestReadDatabaseWithDebugging(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{
+		"id": "iot2",
+		"_rid": "qicAAA==",
+		"_ts": 1446192371,
+		"_self": "dbs\/qicAAA==\/",
+		"_etag": "\"00001800-0000-0000-0000-563324f30000\"",
+		"_colls": "colls\/",
+		"_users": "users\/"
+	}`
+	s := ServerFactory(resp)
+	s.SetStatus(222)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", Debug: true, Verbose: true}, log)
+	_, err := client.ReadDatabase("dbs/qicAAA==")
+	assert.NotNil(err)
 }
 
 func TestReadCollection(t *testing.T) {
@@ -555,6 +607,52 @@ func TestQueryDocuments(t *testing.T) {
 	assert.Equal("SalesOrder2", docs[1].Id)
 }
 
+func TestQueryDocumentsBadQuery(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(400)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", Verbose: true, Debug: true}, log)
+	docs := []testDoc{}
+	err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * root", &docs)
+	assert.NotNil(err)
+}
+
+func TestQueryDocumentsWithPartitionKey(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{  
+		"_rid": "d9RzAJRFKgw=",  
+		"Documents": [  
+		  {  
+			"id": "SalesOrder1",  
+			"ponumber": "PO18009186470",  
+			"_rid": "d9RzAJRFKgwBAAAAAAAAAA==",  
+			"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==/",  
+			"_etag": "\"0000d986-0000-0000-0000-56f9e25b0000\"",  
+			"_ts": 1459216987,  
+			"_attachments": "attachments/"  
+		  },  
+		  {  
+			"id": "SalesOrder2",  
+			"ponumber": "PO15428132599",  
+			"_rid": "d9RzAJRFKgwCAAAAAAAAAA==",  
+			"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwCAAAAAAAAAA==/",  
+			"_etag": "\"0000da86-0000-0000-0000-56f9e25b0000\"",  
+			"_ts": 1459216987,  
+			"_attachments": "attachments/"  
+		  }  
+		],  
+		"_count": 2  
+	  }`
+	s := ServerFactory(resp)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
+	docs := []testDoc{}
+	err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * FROM root", &docs)
+	assert.Nil(err)
+	assert.Equal("SalesOrder1", docs[0].Id)
+	assert.Equal("SalesOrder2", docs[1].Id)
+}
+
 func TestQueryDocumentsWithParameters(t *testing.T) {
 	assert := assert.New(t)
 	resp := `{  
@@ -584,6 +682,51 @@ func TestQueryDocumentsWithParameters(t *testing.T) {
 	s := ServerFactory(resp)
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
+	docs := []testDoc{}
+	query := &QueryWithParameters{
+		Query: "SELECT * FROM root r WHERE r._ts > @_ts",
+		Parameters: []QueryParameter{
+			QueryParameter{
+				Name:  "@_ts",
+				Value: 1459216957,
+			},
+		},
+	}
+	err := client.QueryDocumentsWithParameters("dbs/d9RzAA==/colls/d9RzAJRFKgw=", query, &docs)
+	assert.Nil(err)
+	assert.Equal("SalesOrder1", docs[0].Id)
+	assert.Equal("SalesOrder2", docs[1].Id)
+}
+
+func TestQueryDocumentsWithParametersWithPartitionKey(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{  
+		"_rid": "d9RzAJRFKgw=",  
+		"Documents": [  
+		  {  
+			"id": "SalesOrder1",  
+			"ponumber": "PO18009186470",  
+			"_rid": "d9RzAJRFKgwBAAAAAAAAAA==",  
+			"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==/",  
+			"_etag": "\"0000d986-0000-0000-0000-56f9e25b0000\"",  
+			"_ts": 1459216987,  
+			"_attachments": "attachments/"  
+		  },  
+		  {  
+			"id": "SalesOrder2",  
+			"ponumber": "PO15428132599",  
+			"_rid": "d9RzAJRFKgwCAAAAAAAAAA==",  
+			"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwCAAAAAAAAAA==/",  
+			"_etag": "\"0000da86-0000-0000-0000-56f9e25b0000\"",  
+			"_ts": 1459216987,  
+			"_attachments": "attachments/"  
+		  }  
+		],  
+		"_count": 2  
+	  }`
+	s := ServerFactory(resp)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
 	docs := []testDoc{}
 	query := &QueryWithParameters{
 		Query: "SELECT * FROM root r WHERE r._ts > @_ts",
@@ -702,7 +845,7 @@ func TestCreateStoredProcedure(t *testing.T) {
 		"body": "function () {\r\n    var context = getContext();\r\n    var response = context.getResponse();\r\n\r\n    response.setBody(\"Hello, World\");\r\n}",  
 		"id": "sproc_1"  
 	}`
-	sproc, err := client.CreateUserDefinedFunction("dbs/qYcAAA==/colls/qYcAAPEvJBQ=/sprocs", sprocBody)
+	sproc, err := client.CreateStoredProcedure("dbs/qYcAAA==/colls/qYcAAPEvJBQ=/sprocs", sprocBody)
 	assert.Nil(err)
 	assert.Equal("sproc_1", sproc.Id)
 }
@@ -753,6 +896,29 @@ func TestCreateDocument(t *testing.T) {
 	assert.NotNil(r)
 }
 
+func TestCreateDocumentWithPartitionKey(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{  
+		"id": "SalesOrder1",  
+		"ponumber": "PO18009186470",  
+		"_rid": "d9RzAJRFKgwBAAAAAAAAAA==",  
+		"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==/",  
+		"_etag": "\"0000d986-0000-0000-0000-56f9e25b0000\"",  
+		"_ts": 1459216987,  
+		"_attachments": "attachments/"  
+	}`
+	s := ServerFactory(resp)
+	s.SetStatus(http.StatusCreated)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
+	doc := testDoc{}
+	doc.Id = "SalesOrder1"
+	doc.PONumber = "PO18009186470"
+	r, err := client.CreateDocument("dbs/qYcAAA==/colls/qYcAAPEvJBQ=", &doc)
+	assert.Nil(err)
+	assert.NotNil(r)
+}
+
 func TestUpsertDocument(t *testing.T) {
 	assert := assert.New(t)
 	resp := `{  
@@ -767,6 +933,28 @@ func TestUpsertDocument(t *testing.T) {
 	s := ServerFactory(resp)
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
+	doc := testDoc{}
+	doc.Id = "SalesOrder1"
+	doc.PONumber = "PO18009186470"
+	r, err := client.UpsertDocument("dbs/qYcAAA==/colls/qYcAAPEvJBQ=", &doc)
+	assert.Nil(err)
+	assert.NotNil(r)
+}
+
+func TestUpsertDocumentWithPartitionKey(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{  
+		"id": "SalesOrder1",  
+		"ponumber": "PO18009186470",  
+		"_rid": "d9RzAJRFKgwBAAAAAAAAAA==",  
+		"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==/",  
+		"_etag": "\"0000d986-0000-0000-0000-56f9e25b0000\"",  
+		"_ts": 1459216987,  
+		"_attachments": "attachments/"  
+	}`
+	s := ServerFactory(resp)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
 	doc := testDoc{}
 	doc.Id = "SalesOrder1"
 	doc.PONumber = "PO18009186470"
@@ -861,6 +1049,28 @@ func TestReplaceDocument(t *testing.T) {
 	assert.NotNil(r)
 }
 
+func TestReplaceDocumentWithPartitionKey(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{  
+		"id": "SalesOrder1",  
+		"ponumber": "PO18009186470",  
+		"_rid": "d9RzAJRFKgwBAAAAAAAAAA==",  
+		"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==/",  
+		"_etag": "\"0000d986-0000-0000-0000-56f9e25b0000\"",  
+		"_ts": 1459216987,  
+		"_attachments": "attachments/"  
+	}`
+	s := ServerFactory(resp)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
+	doc := testDoc{}
+	doc.Id = "SalesOrder1"
+	doc.PONumber = "PO18009186470"
+	r, err := client.ReplaceDocument("dbs/qYcAAA==/colls/qYcAAPEvJBQ=", &doc)
+	assert.Nil(err)
+	assert.NotNil(r)
+}
+
 func TestReplaceDocumentAsync(t *testing.T) {
 	assert := assert.New(t)
 	resp := `{  
@@ -875,6 +1085,29 @@ func TestReplaceDocumentAsync(t *testing.T) {
 	s := ServerFactory(resp)
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
+	doc := testDoc{}
+	doc.Id = "SalesOrder1"
+	doc.PONumber = "PO18009186470"
+	doc.Etag = "\"0000d986-0000-0000-0000-56f9e25b0000\""
+	r, err := client.ReplaceDocumentAsync("dbs/qYcAAA==/colls/qYcAAPEvJBQ=", &doc)
+	assert.Nil(err)
+	assert.NotNil(r)
+}
+
+func TestReplaceDocumentAsyncWithPartitionKey(t *testing.T) {
+	assert := assert.New(t)
+	resp := `{  
+		"id": "SalesOrder1",  
+		"ponumber": "PO18009186470",  
+		"_rid": "d9RzAJRFKgwBAAAAAAAAAA==",  
+		"_self": "dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==/",  
+		"_etag": "\"0000d986-0000-0000-0000-56f9e25b0000\"",  
+		"_ts": 1459216987,  
+		"_attachments": "attachments/"  
+	}`
+	s := ServerFactory(resp)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
 	doc := testDoc{}
 	doc.Id = "SalesOrder1"
 	doc.PONumber = "PO18009186470"
