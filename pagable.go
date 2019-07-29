@@ -2,7 +2,7 @@ package gocosmosdb
 
 import "errors"
 
-// NewPagableQuery
+// NewPagableQuery - Creates a pagable query that populates the passed docs interface
 func (c *CosmosDB) NewPagableQuery(coll string, query *QueryWithParameters, limit int, docs interface{}) *PagableQuery {
 	return &PagableQuery{
 		client: c,
@@ -20,12 +20,12 @@ func (q *PagableQuery) doQuery(coll string, query *QueryWithParameters, docs int
 		Count     int         `json:"_count,omitempty"`
 	}{Documents: docs}
 	if query != nil {
-		return q.client.client.QueryWithParameters(coll+"docs/", query, &data, opts...)
+		return q.client.client.queryWithParameters(coll+"docs/", query, &data, opts...)
 	}
 	return nil, errors.New("QueryWithParameters cannot be nil")
 }
 
-// Next
+// Next - marshals the next page of docs into the passed interface
 func (q *PagableQuery) Next() error {
 	if q.offset > 0 {
 		resp, err := q.doQuery(q.coll, q.query, q.docs, q.limit, q.continuation, q.sessionToken)

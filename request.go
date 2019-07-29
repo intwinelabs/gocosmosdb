@@ -45,7 +45,7 @@ const (
 	SupportedVersion = "2018-12-31"
 )
 
-// Request Error
+// RequestError
 type RequestError struct {
 	Code       string        `json:"code"`
 	StatusCode int           `json:"statusCode"`
