@@ -3,6 +3,7 @@ package gocosmosdb
 import (
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,11 +17,22 @@ func TestNew(t *testing.T) {
 
 func TestReadDatabase(t *testing.T) {
 	assert := assert.New(t)
-	s := ServerFactory(`{"id": "db-id"}`, 200)
+	resp := `{  
+		"id": "iot2",  
+		"_rid": "qicAAA==",  
+		"_ts": 1446192371,  
+		"_self": "dbs\/qicAAA==\/",  
+		"_etag": "\"00001800-0000-0000-0000-563324f30000\"",  
+		"_colls": "colls\/",  
+		"_users": "users\/"  
+	}`
+	s := ServerFactory(resp, 200)
 	defer s.Close()
-	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
-	db, err := client.ReadDatabase("dbs/b7NTAS==/")
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", Debug: true, Verbose: true}, log)
+	//client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
+	db, err := client.ReadDatabase("dbs/qicAAA==")
+	spew.Dump(db)
 	assert.Nil(err)
-	assert.NotNil(db)
-	assert.Equal("db-id", db.Id)
+	assert.Nil(db)
+	assert.Equal("iot2", db.Id)
 }

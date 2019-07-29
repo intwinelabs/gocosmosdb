@@ -233,7 +233,14 @@ func (c *apiClient) do(r *Request, status int, data interface{}) (*Response, err
 		curl, _ := http2curl.GetCurlCommand(r.Request)
 		c.logger.Infof("CURL: %s", curl)
 	}
-	rr, err := retryablehttp.FromRequest(r.Request)
+	var rr *retryablehttp.Request
+	var err error
+	if r.rContext != nil {
+		req := r.WithContext(r.rContext)
+		rr, err = retryablehttp.FromRequest(req)
+	} else {
+		rr, err = retryablehttp.FromRequest(r.Request)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("error creating retryable request: %s", err)
 	}

@@ -1,12 +1,24 @@
 package gocosmosdb
 
+const (
+	// QueryVersion - The current query version supported.
+	QueryVersion = "1.4"
+
+	// SupportedVersion - The current supported API version.
+	SupportedVersion = "2018-12-31"
+
+	// UserAgent - The current version of gocosmosdb.
+	UserAgent = "gocosmosdb/1.0"
+)
+
 // Resource
 type Resource struct {
-	Id   string `json:"id,omitempty"`
-	Self string `json:"_self,omitempty"`
-	Etag string `json:"_etag,omitempty"`
-	Rid  string `json:"_rid,omitempty"`
-	Ts   int    `json:"_ts,omitempty"`
+	Id    string `json:"id,omitempty"`
+	Self  string `json:"_self,omitempty"`
+	Etag  string `json:"_etag,omitempty"`
+	Rid   string `json:"_rid,omitempty"`
+	Ts    int    `json:"_ts,omitempty"`
+	Count int    `json:"_count,omitempty"`
 }
 
 // Indexing policy

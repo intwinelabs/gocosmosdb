@@ -1,6 +1,7 @@
 package gocosmosdb
 
 import (
+	"context"
 	"encoding/json"
 	"strconv"
 )
@@ -25,7 +26,7 @@ const (
 // CallOption function
 type CallOption func(r *Request) error
 
-// PartitionKey specificy which partiotion will be used to satisfty the request
+// PartitionKey - specificy which partiotion will be used to satisfty the request
 func PartitionKey(partitionKey interface{}) CallOption {
 
 	// The partition key header must be an array following the spec:
@@ -54,7 +55,7 @@ func PartitionKey(partitionKey interface{}) CallOption {
 	}
 }
 
-// Upsert if set to true, Cosmos DB creates the document with the ID (and partition key value if applicable) if it doesn’t exist, or update the document if it exists.
+// Upsert - if set to true, Cosmos DB creates the document with the ID (and partition key value if applicable) if it doesn’t exist, or update the document if it exists.
 func Upsert() CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderUpsert, "true")
@@ -62,7 +63,7 @@ func Upsert() CallOption {
 	}
 }
 
-// Limit set max item count for response
+// Limit - set max item count for response
 func Limit(limit int) CallOption {
 	header := strconv.Itoa(limit)
 	return func(r *Request) error {
@@ -71,7 +72,7 @@ func Limit(limit int) CallOption {
 	}
 }
 
-// Continuation a string token returned for queries and read-feed operations if there are more results to be read. Clients can retrieve the next page of results by resubmitting the request with the x-ms-continuation request header set to this value.
+// Continuation - a string token returned for queries and read-feed operations if there are more results to be read. Clients can retrieve the next page of results by resubmitting the request with the x-ms-continuation request header set to this value.
 func Continuation(continuation string) CallOption {
 	return func(r *Request) error {
 		if continuation == "" {
@@ -82,15 +83,15 @@ func Continuation(continuation string) CallOption {
 	}
 }
 
-// ConsistencyLevel override for read options against documents and attachments. The valid values are: Strong, Bounded, Session, or Eventual (in order of strongest to weakest). The override must be the same or weaker than the account�s configured consistency level.
+// ConsistencyLevel - override for read options against documents and attachments. The valid values are: Strong, Bounded, Session, or Eventual (in order of strongest to weakest). The override must be the same or weaker than the account�s configured consistency level.
 func ConsistencyLevel(consistency Consistency) CallOption {
 	return func(r *Request) error {
-		r.Header.Set(HeaderConsistency, string(consistency))
+		r.Header.Set(HeaderConsistencyLevel, string(consistency))
 		return nil
 	}
 }
 
-// SessionToken a string token used with session level consistency. For more information, see
+// SessionToken - a string token used with session level consistency.
 func SessionToken(sessionToken string) CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderSessionToken, sessionToken)
@@ -98,7 +99,7 @@ func SessionToken(sessionToken string) CallOption {
 	}
 }
 
-// CrossPartition allows query to run on all partitions
+// CrossPartition - allows query to run on all partitions
 func CrossPartition() CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderCrossPartition, "true")
@@ -106,7 +107,7 @@ func CrossPartition() CallOption {
 	}
 }
 
-// IfMatch used to make operation conditional for optimistic concurrency. The value should be the etag value of the resource.
+// IfMatch - used to make operation conditional for optimistic concurrency. The value should be the etag value of the resource.
 // (applicable only on PUT and DELETE)
 func IfMatch(eTag string) CallOption {
 	return func(r *Request) error {
@@ -115,7 +116,7 @@ func IfMatch(eTag string) CallOption {
 	}
 }
 
-// IfNoneMatch makes operation conditional to only execute if the resource has changed. The value should be the etag of the resource.
+// IfNoneMatch - makes operation conditional to only execute if the resource has changed. The value should be the etag of the resource.
 // Optional (applicable only on GET)
 func IfNoneMatch(eTag string) CallOption {
 	return func(r *Request) error {
@@ -124,7 +125,7 @@ func IfNoneMatch(eTag string) CallOption {
 	}
 }
 
-// IfModifiedSince returns etag of resource modified after specified date in RFC 1123 format. Ignored when If-None-Match is specified
+// IfModifiedSince - returns etag of resource modified after specified date in RFC 1123 format. Ignored when If-None-Match is specified
 // Optional (applicable only on GET)
 func IfModifiedSince(date string) CallOption {
 	return func(r *Request) error {
@@ -133,7 +134,7 @@ func IfModifiedSince(date string) CallOption {
 	}
 }
 
-// ChangeFeed indicates a change feed request
+// ChangeFeed - indicates a change feed request
 func ChangeFeed() CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderAIM, "Incremental feed")
@@ -141,15 +142,7 @@ func ChangeFeed() CallOption {
 	}
 }
 
-// ChangeFeedPartitionRangeID used in change feed requests. The partition key range ID for reading data.
-func ChangeFeedPartitionRangeID(id string) CallOption {
-	return func(r *Request) error {
-		r.Header.Set(HeaderPartitionKeyRangeID, id)
-		return nil
-	}
-}
-
-// ThroughputRUs adds throughput headers for container creation
+// ThroughputRUs - adds throughput headers for container creation
 func ThroughputRUs(rus int) CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderOfferThroughput, strconv.Itoa(rus))
@@ -157,7 +150,7 @@ func ThroughputRUs(rus int) CallOption {
 	}
 }
 
-// PartitionKeyRangeID adds the partition key range header
+// PartitionKeyRangeID - adds the partition key range header
 func PartitionKeyRangeID(id int) CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderPartitionKeyRangeID, strconv.Itoa(id))
@@ -165,7 +158,7 @@ func PartitionKeyRangeID(id int) CallOption {
 	}
 }
 
-// EnableQueryScan add the scan header
+// EnableQueryScan - add the scan header
 func EnableQueryScan() CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderEnableScan, "true")
@@ -173,10 +166,18 @@ func EnableQueryScan() CallOption {
 	}
 }
 
-// EnableParallelizeCrossPartitionQuery add the parallelize header
+// EnableParallelizeCrossPartitionQuery - add the parallelize header
 func EnableParallelizeCrossPartitionQuery() CallOption {
 	return func(r *Request) error {
 		r.Header.Set(HeaderParalelizeCrossPartition, "true")
+		return nil
+	}
+}
+
+// WithContext - adds a context to the request
+func WithContext(ctx context.Context) CallOption {
+	return func(r *Request) error {
+		r.rContext = ctx
 		return nil
 	}
 }

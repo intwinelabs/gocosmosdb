@@ -80,6 +80,9 @@ func main() {
 }
 ```
 
+### Azure Cosmos DB SQL REST API Reference
+- https://docs.microsoft.com/en-us/rest/api/cosmos-db/
+
 ### Credits
 This library is derived from:
 - https://github.com/nerdylikeme/go-documentdb

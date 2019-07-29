@@ -1,48 +1,12 @@
 package gocosmosdb
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
-)
-
-const (
-	HeaderXDate                    = "X-Ms-Date"
-	HeaderAuth                     = "Authorization"
-	HeaderVersion                  = "X-Ms-Version"
-	HeaderContentType              = "Content-Type"
-	HeaderContentLength            = "Content-Length"
-	HeaderIsQuery                  = "X-Ms-Documentdb-Isquery"
-	HeaderUpsert                   = "X-Ms-Documentdb-Is-Upsert"
-	HeaderPartitionKey             = "X-Ms-Documentdb-Partitionkey"
-	HeaderMaxItemCount             = "X-Ms-Max-Item-Count"
-	HeaderContinuation             = "X-Ms-Continuation"
-	HeaderConsistency              = "X-Ms-Consistency-Level"
-	HeaderSessionToken             = "X-Ms-Session-Token"
-	HeaderCrossPartition           = "X-Ms-Documentdb-Query-Enablecrosspartition"
-	HeaderIfMatch                  = "If-Match"
-	HeaderIfNonMatch               = "If-None-Match"
-	HeaderIfModifiedSince          = "If-Modified-Since"
-	HeaderActivityID               = "X-Ms-Activity-Id"
-	HeaderRequestCharge            = "X-Ms-Request-Charge"
-	HeaderAIM                      = "A-IM"
-	HeaderOfferThroughput          = "X-Ms-Offer-Throughput"
-	HeaderPartitionKeyRangeID      = "X-Ms-Documentdb-Partitionkeyrangeid"
-	HeaderPopulateQueryMetrics     = "X-Ms-Documentdb-Populatequerymetrics"
-	HeaderQueryMetrics             = "X-Ms-Documentdb-Query-Metrics"
-	HeaderAllowTenativeWrites      = "X-Ms-Cosmos-Allow-Tentative-Writes"
-	HeaderIsQueryPlan              = "X-Ms-Cosmos-Is-Query-Plan-Request"
-	HeaderQueryVersion             = "X-Ms-Cosmos-Query-Version"
-	HeaderSupportedQueryFeatures   = "X-Ms-Cosmos-Supported-Query-Features"
-	HeaderEnableScan               = "X-Ms-Documentdb-Query-Enable-Scan"
-	HeaderParalelizeCrossPartition = "x-Ms-Documentdb-Query-Parallelizecrosspartitionquery"
-	HeaderPartitonKeyRange         = "X-Ms-Documentdb-Partitionkeyrangeid"
-
-	QueryFeatures    = "Aggregate, Distinct, MultipleOrderBy, OffsetAndLimit, OrderBy, Top, CompositeAggregate"
-	QueryVersion     = "1.4"
-	SupportedVersion = "2018-12-31"
 )
 
 // RequestError
@@ -62,23 +26,25 @@ func (e RequestError) Error() string {
 
 // Resource Request
 type Request struct {
-	rLink string
-	rId   string
-	rType string
+	rLink    string
+	rId      string
+	rType    string
+	rContext context.Context
 	*http.Request
 }
 
 // Return new resource request with type and id
 func ResourceRequest(link string, req *http.Request) *Request {
 	rLink, rId, rType := parse(link)
-	return &Request{rLink, rId, rType, req}
+	return &Request{rLink, rId, rType, nil, req}
 }
 
 // Add 3 default headers to *Request
 // "x-ms-date", "x-ms-version", "authorization"
 func (req *Request) DefaultHeaders(mKey string) (err error) {
 	req.Header.Add(HeaderXDate, time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
-	req.Header.Add(HeaderVersion, "2017-02-22")
+	req.Header.Add(HeaderVersion, SupportedVersion)
+	req.Header.Add(HeaderUserAgent, UserAgent)
 
 	// Auth
 	parts := req.Method + "\n" +
@@ -102,6 +68,7 @@ func (req *Request) DefaultHeaders(mKey string) (err error) {
 
 // Add headers for query request
 func (req *Request) QueryHeaders(len int) {
+	req.Header.Add(HeaderQueryVersion, QueryVersion)
 	req.Header.Add(HeaderContentType, "application/query+json")
 	req.Header.Add(HeaderIsQuery, "true")
 	req.Header.Add(HeaderContentLength, string(len))
