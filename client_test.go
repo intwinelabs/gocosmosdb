@@ -15,7 +15,7 @@ import (
 var log = logger.New()
 var httpClient = retryablehttp.NewClient()
 
-func TestMain(m *testing.M) {
+func init() {
 	httpClient.RetryMax = 0
 }
 
@@ -129,7 +129,7 @@ func TestRead(t *testing.T) {
 
 	// Second Call, when StatusCode != StatusOK
 	_, err = client.read("dbs/b7NCAA==/colls/Ad352/", &db)
-	assert.Contains(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "giving up after 1 attempts")
 }
 
 func TestQuery(t *testing.T) {
@@ -155,7 +155,7 @@ func TestQuery(t *testing.T) {
 
 	// Second Call, when StatusCode != StatusOK
 	_, err = client.read("/dbs/b7NCAA==/colls/Ad352/", &db)
-	assert.Contains(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "giving up after 1 attempts")
 }
 
 func TestCreate(t *testing.T) {
@@ -189,7 +189,7 @@ func TestCreate(t *testing.T) {
 
 	// Last Call, when StatusCode != StatusOK && StatusCreated
 	_, err = client.create("dbs", tDoc, &doc)
-	assert.Contains(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "giving up after 1 attempts")
 }
 
 func TestDelete(t *testing.T) {
@@ -213,7 +213,7 @@ func TestDelete(t *testing.T) {
 
 	// Second Call, when StatusCode != StatusOK
 	_, err = client.delete("dbs/b7NCAA==/colls/Ad352/")
-	assert.Contains(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "giving up after 1 attempts")
 }
 
 func TestReplace(t *testing.T) {
@@ -247,7 +247,7 @@ func TestReplace(t *testing.T) {
 
 	// Last Call, when StatusCode != StatusOK && StatusCreated
 	_, err = client.replace("dbs", tDoc, &doc)
-	assert.Contains(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "giving up after 1 attempts")
 }
 
 func TestExecute(t *testing.T) {
@@ -281,5 +281,5 @@ func TestExecute(t *testing.T) {
 
 	// Last Call, when StatusCode != StatusOK && StatusCreated
 	_, err = client.execute("dbs", tDoc, &doc)
-	assert.Contains(err.Error(), "500, CosmosDB error")
+	assert.Contains(err.Error(), "giving up after 1 attempts")
 }

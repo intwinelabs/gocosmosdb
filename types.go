@@ -118,9 +118,8 @@ type Metrics struct {
 // PartitionKeyRange partition key range model
 type PartitionKeyRange struct {
 	Resource
-	PartitionKeyRangeID string `json:"id,omitempty"`
-	MinInclusive        string `json:"minInclusive,omitempty"`
-	MaxInclusive        string `json:"maxExclusive,omitempty"`
+	MinInclusive string `json:"minInclusive,omitempty"`
+	MaxInclusive string `json:"maxExclusive,omitempty"`
 }
 
 // PagableQuery

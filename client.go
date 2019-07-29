@@ -246,7 +246,7 @@ func (c *apiClient) do(r *Request, status int, data interface{}) (*Response, err
 	}
 	resp, err := c.httpClient.Do(rr)
 	if err != nil {
-		return nil, fmt.Errorf("Request: Id: %+v, Type: %+v, HTTP: %+v, Error: %s", r.rId, r.rType, r.Request, err)
+		return nil, err
 	}
 	if c.config.Debug && c.config.Verbose && c.logger != nil {
 		c.logger.Infof("CosmosDB Request: %s", spew.Sdump(resp.Request))

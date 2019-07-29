@@ -144,8 +144,3 @@ func parse(link string) (rLink, rId, rType string) {
 
 	return
 }
-
-type queryPartitionKeyRangesRequest struct {
-	Ranges []PartitionKeyRange `json:"PartitionKeyRanges,omitempty"`
-	Count  int                 `json:"_count,omitempty"`
-}

@@ -243,13 +243,16 @@ func (c *CosmosDB) QueryDocumentsWithParameters(coll string, query *QueryWithPar
 // QueryPartitionKeyRanges - Retrieves all partition ranges in a collection.
 //	pks, err := client.QueryPartitionKeyRanges(coll, "SELECT * FROM ROOT r")
 func (c *CosmosDB) QueryPartitionKeyRanges(coll string, query string, opts ...CallOption) (ranges []PartitionKeyRange, err error) {
-	data := queryPartitionKeyRangesRequest{}
+	data := struct {
+		PartitionKeyRanges []PartitionKeyRange `json:"PartitionKeyRanges,omitempty"`
+		Count              int                 `json:"_count,omitempty"`
+	}{}
 	if len(query) > 0 {
 		_, err = c.client.query(coll+"pkranges/", query, &data, opts...)
 	} else {
 		_, err = c.client.read(coll+"pkranges/", &data, opts...)
 	}
-	if ranges = data.Ranges; err != nil {
+	if ranges = data.PartitionKeyRanges; err != nil {
 		ranges = nil
 	}
 	return
