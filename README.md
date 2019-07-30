@@ -77,6 +77,11 @@ func main() {
 	for _, user := range users {
 		fmt.Print("Name:", user.Name, "Email:", user.Email)
 	}
+
+	// run stored procedure with context timeout
+	ctx, _ := context.WithTimeout(context.Background(), 250*time.Millisecond)
+	docs := []testDoc{}
+	err := client.ExecuteStoredProcedure(coll.Self+"sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
 }
 ```
 

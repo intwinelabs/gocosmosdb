@@ -1,6 +1,7 @@
 package gocosmosdb
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -1190,4 +1191,34 @@ func TestExecuteStoredProcedure(t *testing.T) {
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
+}
+
+func TestExecuteStoredProcedureWithContextCancel(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(500, 500, 500, 500)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", RetryWaitMin: 100 * time.Millisecond, RetryWaitMax: 1 * time.Millisecond, RetryMax: 3}, log)
+	ctx, cancel := context.WithCancel(context.Background())
+	docs := []testDoc{}
+	go func() {
+		time.Sleep(250 * time.Microsecond)
+		cancel()
+	}()
+	err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "context canceled")
+
+}
+
+func TestExecuteStoredProcedureWithContextTimeout(t *testing.T) {
+	assert := assert.New(t)
+	s := ServerFactory(500, 500, 500, 500)
+	defer s.Close()
+	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", RetryWaitMin: 100 * time.Millisecond, RetryWaitMax: 100 * time.Millisecond, RetryMax: 3}, log)
+	ctx, _ := context.WithTimeout(context.Background(), 250*time.Millisecond)
+	docs := []testDoc{}
+	err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
+	assert.NotNil(err)
+	assert.Contains(err.Error(), "context deadline exceeded")
+
 }
