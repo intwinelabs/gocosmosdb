@@ -82,11 +82,23 @@ func main() {
 	ctx, _ := context.WithTimeout(context.Background(), 250*time.Millisecond)
 	docs := []testDoc{}
 	err := client.ExecuteStoredProcedure(coll.Self+"sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
+	if err != nil {
+		log.Fatal(err)	
+	}
 }
 ```
 
 ### Azure Cosmos DB SQL REST API Reference
 - https://docs.microsoft.com/en-us/rest/api/cosmos-db/
+
+### Contributing
+- **Reporting Issues** - When reporting issues on GitHub please include your host OS (Ubuntu 16.04, Fedora 19, etc) `sudo lsb_release -a`, the output of `uname -a`, `go version`. Please include the steps required to reproduce the problem. This info will help us review and fix your issue faster.
+- **We welcome your pull requests** - We are always thrilled to receive pull requests, and do our best to process them as fast as possible. 
+	- Not sure if that typo is worth a pull request? Do it! We will appreciate it.
+    - If your pull request is not accepted on the first try, don't be discouraged! We will do our best to give you feedback on what to improve.
+    - We're trying very hard to keep gocosmosdb lean and focused. We don't want it to do everything for everybody. This means that we might decide against incorporating a new feature. However, we encourage you to fork our repo and implement it on top of gocosmosdb.
+	- Any changes or improvements should be documented as a GitHub issue before we add it to the project and anybody starts working on it.
+- **Please check for existing issues first** - If it does add a quick "+1". This will help prioritize the most common problems and requests.
 
 ### Credits
 This library is derived from:
