@@ -19,9 +19,12 @@ $ go get github.com/intwinelabs/gocosomsdb
 
 #### Example
 ```go
+package main
+
 import (
+	"context"
 	"io/ioutil"
-	"log"
+	"time"
 
 	"github.com/intwinelabs/gocosmosdb"
 	"github.com/intwinelabs/logger"
@@ -30,7 +33,7 @@ import (
 func main() {
 	log := logger.Init("CosmosGoApp", false, true, ioutil.Discard)
 	client := gocosmosdb.New("connection-url", gocosmosdb.Config{MasterKey: "master-key"}, log)
-	
+
 	// create a database
 	db, err := client.CreateDatabase(`{ "id": "intwineLabs" }`)
 	if err != nil {
@@ -49,42 +52,42 @@ func main() {
 		// To set documents TTL
 		gocosmosdb.Expirable
 		// Your external fields
-		Name    string `json:"name,omitempty"`
-		Email   string `json:"email,omitempty"`
+		Name  string `json:"name,omitempty"`
+		Email string `json:"email,omitempty"`
 	}
 
 	// user to store
 	var user User
-	// Note: If the `Id` is missing(or empty) in the payload it will generate 
+	// Note: If the `Id` is missing(or empty) in the payload it will generate
 	// random document id(i.e: uuid4)
 	user.Id = "uuid"
 	user.Name = "Bad MF"
 	user.Email = "badmf@intwine.io"
 	// This tells CosmosDB to expire the doc in 24 hours
 	user.SetTTL(24 * time.Hour)
-	
+
 	// create the document
-	err := client.CreateDocument(col.Self, &doc)
+	_, err = client.CreateDocument(coll.Self, &user)
 	if err != nil {
-		log.Fatal(err)	
+		log.Fatal(err)
 	}
 
 	// query to documents
 	var users []User
 	err = client.QueryDocuments(coll.Self, "SELECT * FROM ROOT r", &users)
 	if err != nil {
-		log.Fatal(err)	
+		log.Fatal(err)
 	}
 	for _, user := range users {
-		fmt.Print("Name:", user.Name, "Email:", user.Email)
+		log.Infof("Name:%s, Email: %s", user.Name, user.Email)
 	}
 
 	// run stored procedure with context timeout
 	ctx, _ := context.WithTimeout(context.Background(), 250*time.Millisecond)
-	docs := []testDoc{}
-	err := client.ExecuteStoredProcedure(coll.Self+"sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
+	docs := []User{}
+	err = client.ExecuteStoredProcedure(coll.Self+"sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, gocosmosdb.WithContext(ctx))
 	if err != nil {
-		log.Fatal(err)	
+		log.Fatal(err)
 	}
 }
 ```

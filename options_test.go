@@ -26,6 +26,7 @@ func TestCallOptions(t *testing.T) {
 	opts = append(opts, PartitionKeyRangeID(0))
 	opts = append(opts, EnableQueryScan())
 	opts = append(opts, EnableParallelizeCrossPartitionQuery())
+	opts = append(opts, EnablePopulateQueryMetrics())
 	ctx := context.WithValue(context.Background(), "foo", "bar")
 	opts = append(opts, WithContext(ctx))
 
@@ -56,5 +57,6 @@ func TestCallOptions(t *testing.T) {
 	assert.Equal("0", r.Header.Get(HeaderPartitionKeyRangeID))
 	assert.Equal("true", r.Header.Get(HeaderEnableScan))
 	assert.Equal("true", r.Header.Get(HeaderParalelizeCrossPartition))
+	assert.Equal("true", r.Header.Get(HeaderPopulateQueryMetrics))
 	assert.Equal(ctx, r.rContext)
 }

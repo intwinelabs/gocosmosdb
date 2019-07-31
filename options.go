@@ -174,6 +174,14 @@ func EnableParallelizeCrossPartitionQuery() CallOption {
 	}
 }
 
+// EnablePopulateQueryMetrics - add the parallelize header
+func EnablePopulateQueryMetrics() CallOption {
+	return func(r *Request) error {
+		r.Header.Set(HeaderPopulateQueryMetrics, "true")
+		return nil
+	}
+}
+
 // WithContext - adds a context to the request
 func WithContext(ctx context.Context) CallOption {
 	return func(r *Request) error {
