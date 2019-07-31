@@ -2,6 +2,7 @@
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/intwinelabs/gocosmosdb)
 [![Build Status](https://travis-ci.org/intwinelabs/gocosmosdb.svg?branch=master)](https://travis-ci.org/intwinelabs/gocosmosdb)
 [![Coverage Status](https://coveralls.io/repos/github/intwinelabs/gocosmosdb/badge.svg?branch=master)](https://coveralls.io/github/intwinelabs/gocosmosdb?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/intwinelabs/gremgoser)](https://goreportcard.com/report/github.com/intwinelabs/gremgoser)
 
 ### Key Features
 - Client Connection Pooling
