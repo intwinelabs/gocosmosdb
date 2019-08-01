@@ -74,7 +74,7 @@ func main() {
 
 	// query to documents
 	var users []User
-	err = client.QueryDocuments(coll.Self, "SELECT * FROM ROOT r", &users)
+	_, err = client.QueryDocuments(coll.Self, "SELECT * FROM ROOT r", &users)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,7 +85,7 @@ func main() {
 	// run stored procedure with context timeout
 	ctx, _ := context.WithTimeout(context.Background(), 250*time.Millisecond)
 	docs := []User{}
-	err = client.ExecuteStoredProcedure(coll.Self+"sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, gocosmosdb.WithContext(ctx))
+	_, err = client.ExecuteStoredProcedure(coll.Self+"sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, gocosmosdb.WithContext(ctx))
 	if err != nil {
 		log.Fatal(err)
 	}

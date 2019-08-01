@@ -83,8 +83,8 @@ func (c *CosmosDB) ReadCollection(link string, opts ...CallOption) (coll *Collec
 
 // ReadDocument - Retrieves a document by performing a GET on a specific document resource and marshals the document into that passed docStruct
 //	err = client.ReadDocument("dbs/{db-id}/colls/{coll-id}/docs/{doc-id}", &docStruct)
-func (c *CosmosDB) ReadDocument(link string, doc interface{}, opts ...CallOption) (err error) {
-	_, err = c.client.read(link, &doc, opts...)
+func (c *CosmosDB) ReadDocument(link string, doc interface{}, opts ...CallOption) (resp *Response, err error) {
+	resp, err = c.client.read(link, &doc, opts...)
 	return
 }
 
@@ -134,7 +134,7 @@ func (c *CosmosDB) ReadUserDefinedFunctions(coll string, opts ...CallOption) (ud
 
 // ReadDocuments - Retrieves a stored procedure by performing a GET on a specific stored procedure resource.
 //	err = client.ReadDocuments("dbs/{db-id}/colls/{coll-id}/docs", &docStructSlice)
-func (c *CosmosDB) ReadDocuments(coll string, docs interface{}, opts ...CallOption) (err error) {
+func (c *CosmosDB) ReadDocuments(coll string, docs interface{}, opts ...CallOption) (*Response, error) {
 	return c.QueryDocuments(coll, "", docs, opts...)
 }
 
@@ -212,28 +212,28 @@ func (c *CosmosDB) QueryUserDefinedFunctions(coll, query string, opts ...CallOpt
 
 // QueryDocuments - Retrieves all documents in a collection that satisfy the passed query and marshals them into the passed interface.
 //	err := client.QueryDocuments(coll, "SELECT * FROM ROOT r", &docs)
-func (c *CosmosDB) QueryDocuments(coll, query string, docs interface{}, opts ...CallOption) (err error) {
+func (c *CosmosDB) QueryDocuments(coll, query string, docs interface{}, opts ...CallOption) (resp *Response, err error) {
 	data := struct {
 		Documents interface{} `json:"Documents,omitempty"`
 		Count     int         `json:"_count,omitempty"`
 	}{Documents: docs}
 	if len(query) > 0 {
-		_, err = c.client.query(coll+"docs/", query, &data, opts...)
+		resp, err = c.client.query(coll+"docs/", query, &data, opts...)
 	} else {
-		_, err = c.client.read(coll+"docs/", &data)
+		resp, err = c.client.read(coll+"docs/", &data)
 	}
 	return
 }
 
 // QueryDocumentsWithParameters - Retrieves all documents in a collection that satisfy a passed query with parameters and marshals them into the passed interface.
 //	err := client.QueryDocumentsWithParameters(coll, queryWithParams, &docs)
-func (c *CosmosDB) QueryDocumentsWithParameters(coll string, query *QueryWithParameters, docs interface{}, opts ...CallOption) (err error) {
+func (c *CosmosDB) QueryDocumentsWithParameters(coll string, query *QueryWithParameters, docs interface{}, opts ...CallOption) (resp *Response, err error) {
 	data := struct {
 		Documents interface{} `json:"Documents,omitempty"`
 		Count     int         `json:"_count,omitempty"`
 	}{Documents: docs}
 	if query != nil {
-		_, err = c.client.queryWithParameters(coll+"docs/", query, &data, opts...)
+		resp, err = c.client.queryWithParameters(coll+"docs/", query, &data, opts...)
 	} else {
 		err = errors.New("QueryWithParameters cannot be nil")
 	}
@@ -405,7 +405,7 @@ func (c *CosmosDB) ReplaceUserDefinedFunction(link string, body interface{}, opt
 
 // ExecuteStoredProcedure - Executes a stored procedure and marshals the data into the passed interface.
 //	err := client.ExecuteStoredProcedure("dbs/{db-id}/colls/{coll-id}/sprocs/{sproc-id}", []interface{}{p1, p2}, &docs)
-func (c *CosmosDB) ExecuteStoredProcedure(link string, params, body interface{}, opts ...CallOption) (err error) {
-	_, err = c.client.execute(link, params, &body, opts...)
+func (c *CosmosDB) ExecuteStoredProcedure(link string, params, body interface{}, opts ...CallOption) (resp *Response, err error) {
+	resp, err = c.client.execute(link, params, &body, opts...)
 	return
 }

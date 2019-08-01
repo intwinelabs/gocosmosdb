@@ -23,13 +23,27 @@ func (r *Response) SessionToken() string {
 	return r.Header.Get(HeaderSessionToken)
 }
 
-// GetResponseMetrics - returns a responses metrics
-func (r *Response) GetResponseMetrics() (*Metrics, error) {
+// GetRUs - returns a responses RUs
+func (r *Response) GetRUs() (float64, error) {
+	// x-ms-request-charge: 604.42
+	var requestVal float64
+	_, err := fmt.Sscanf(r.Header.Get(HeaderRequestCharge), "%f", &requestVal)
+	if err != nil {
+		return -1, fmt.Errorf("error parsing request charge header: %v", err)
+	}
+	return requestVal, nil
+}
+
+// GetQueryMetrics - returns a responses metrics
+func (r *Response) GetQueryMetrics() (*Metrics, error) {
 	// x-ms-documentdb-query-metrics: totalExecutionTimeInMs=33.67;queryCompileTimeInMs=0.06;queryLogicalPlanBuildTimeInMs=0.02;queryPhysicalPlanBuildTimeInMs=0.10;queryOptimizationTimeInMs=0.00;VMExecutionTimeInMs=32.56;indexLookupTimeInMs=0.36;documentLoadTimeInMs=9.58;systemFunctionExecuteTimeInMs=0.00;userFunctionExecuteTimeInMs=0.00;retrievedDocumentCount=2000;retrievedDocumentSize=1125600;outputDocumentCount=2000;writeOutputTimeInMs=18.10;indexUtilizationRatio=1.00
 	// x-ms-request-charge: 604.42
 
 	metrics := &Metrics{}
 	metricsStrSlice := strings.Split(r.Header.Get(HeaderQueryMetrics), ";")
+	if len(metricsStrSlice) == 1 {
+		return nil, fmt.Errorf("no metrics in response")
+	}
 	for _, metricStr := range metricsStrSlice {
 		metricSlice := strings.Split(metricStr, "=")
 		if len(metricSlice) == 2 {

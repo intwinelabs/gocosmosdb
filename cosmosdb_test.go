@@ -151,7 +151,7 @@ func TestReadDocument(t *testing.T) {
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
 	doc := testDoc{}
-	err := client.ReadDocument("dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==", &doc)
+	_, err := client.ReadDocument("dbs/d9RzAA==/colls/d9RzAJRFKgw=/docs/d9RzAJRFKgwBAAAAAAAAAA==", &doc)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", doc.Id)
 }
@@ -350,7 +350,7 @@ func TestReadDocuments(t *testing.T) {
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
 	docs := []testDoc{}
-	err := client.ReadDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", &docs)
+	_, err := client.ReadDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", &docs)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
@@ -602,7 +602,7 @@ func TestQueryDocuments(t *testing.T) {
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
 	docs := []testDoc{}
-	err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * FROM root", &docs)
+	_, err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * FROM root", &docs)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
@@ -614,7 +614,7 @@ func TestQueryDocumentsBadQuery(t *testing.T) {
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", Verbose: true, Debug: true}, log)
 	docs := []testDoc{}
-	err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * root", &docs)
+	_, err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * root", &docs)
 	assert.NotNil(err)
 }
 
@@ -648,7 +648,7 @@ func TestQueryDocumentsWithPartitionKey(t *testing.T) {
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", PartitionKeyStructField: "PONumber", PartitionKeyPath: "/ponumber"}, log)
 	docs := []testDoc{}
-	err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * FROM root", &docs)
+	_, err := client.QueryDocuments("dbs/d9RzAA==/colls/d9RzAJRFKgw=", "SELECT * FROM root", &docs)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
@@ -693,7 +693,7 @@ func TestQueryDocumentsWithParameters(t *testing.T) {
 			},
 		},
 	}
-	err := client.QueryDocumentsWithParameters("dbs/d9RzAA==/colls/d9RzAJRFKgw=", query, &docs)
+	_, err := client.QueryDocumentsWithParameters("dbs/d9RzAA==/colls/d9RzAJRFKgw=", query, &docs)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
@@ -738,7 +738,7 @@ func TestQueryDocumentsWithParametersWithPartitionKey(t *testing.T) {
 			},
 		},
 	}
-	err := client.QueryDocumentsWithParameters("dbs/d9RzAA==/colls/d9RzAJRFKgw=", query, &docs)
+	_, err := client.QueryDocumentsWithParameters("dbs/d9RzAA==/colls/d9RzAJRFKgw=", query, &docs)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
@@ -1187,7 +1187,7 @@ func TestExecuteStoredProcedure(t *testing.T) {
 	defer s.Close()
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg=="}, log)
 	docs := []testDoc{}
-	err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs)
+	_, err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs)
 	assert.Nil(err)
 	assert.Equal("SalesOrder1", docs[0].Id)
 	assert.Equal("SalesOrder2", docs[1].Id)
@@ -1204,7 +1204,7 @@ func TestExecuteStoredProcedureWithContextCancel(t *testing.T) {
 		time.Sleep(250 * time.Microsecond)
 		cancel()
 	}()
-	err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
+	_, err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "context canceled")
 
@@ -1217,7 +1217,7 @@ func TestExecuteStoredProcedureWithContextTimeout(t *testing.T) {
 	client := New(s.URL, Config{MasterKey: "YXJpZWwNCg==", RetryWaitMin: 100 * time.Millisecond, RetryWaitMax: 100 * time.Millisecond, RetryMax: 3}, log)
 	ctx, _ := context.WithTimeout(context.Background(), 250*time.Millisecond)
 	docs := []testDoc{}
-	err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
+	_, err := client.ExecuteStoredProcedure("dbs/Sl8fAA==/colls/Sl8fALN4sw4=/sprocs/Sl8fALN4sw4CAAAAAAAAgA==", []string{"param1"}, &docs, WithContext(ctx))
 	assert.NotNil(err)
 	assert.Contains(err.Error(), "context deadline exceeded")
 
