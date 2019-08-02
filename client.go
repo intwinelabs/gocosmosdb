@@ -27,6 +27,7 @@ type apiClient struct {
 func newAPIClient(conf *Config) *apiClient {
 	client := &apiClient{}
 	httpClient := retryablehttp.NewClient()
+	httpClient.Logger = nil
 	client.httpClient = httpClient
 	var zeroDuration time.Duration
 	if conf.RetryWaitMin == zeroDuration {
