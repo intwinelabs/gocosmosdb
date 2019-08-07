@@ -132,4 +132,5 @@ type PagableQuery struct {
 	limit        CallOption
 	offset       int64
 	docs         interface{}
+	opts         []CallOption
 }

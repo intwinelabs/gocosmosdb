@@ -3,7 +3,7 @@ package gocosmosdb
 import "errors"
 
 // NewPagableQuery - Creates a pagable query that populates the passed docs interface
-func (c *CosmosDB) NewPagableQuery(coll string, query *QueryWithParameters, limit int, docs interface{}) *PagableQuery {
+func (c *CosmosDB) NewPagableQuery(coll string, query *QueryWithParameters, limit int, docs interface{}, opts ...CallOption) *PagableQuery {
 	return &PagableQuery{
 		client: c,
 		coll:   coll,
@@ -11,6 +11,7 @@ func (c *CosmosDB) NewPagableQuery(coll string, query *QueryWithParameters, limi
 		limit:  Limit(limit),
 		offset: 0,
 		docs:   docs,
+		opts:   opts,
 	}
 }
 
@@ -28,7 +29,10 @@ func (q *PagableQuery) doQuery(coll string, query *QueryWithParameters, docs int
 // Next - marshals the next page of docs into the passed interface
 func (q *PagableQuery) Next() error {
 	if q.offset > 0 {
-		resp, err := q.doQuery(q.coll, q.query, q.docs, q.limit, q.continuation, q.sessionToken)
+		opts := append(q.opts, q.limit)
+		opts = append(opts, q.continuation)
+		opts = append(opts, q.sessionToken)
+		resp, err := q.doQuery(q.coll, q.query, q.docs, opts...)
 		if err != nil {
 			return err
 		}
@@ -36,7 +40,8 @@ func (q *PagableQuery) Next() error {
 		q.continuation = Continuation(resp.Continuation())
 	}
 	if q.offset == 0 {
-		resp, err := q.doQuery(q.coll, q.query, q.docs, q.limit)
+		opts := append(q.opts, q.limit)
+		resp, err := q.doQuery(q.coll, q.query, q.docs, opts...)
 		if err != nil {
 			return err
 		}
