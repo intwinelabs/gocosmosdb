@@ -37,7 +37,11 @@ func (q *PagableQuery) Next() error {
 			return err
 		}
 		q.offset = q.offset + 1
-		q.continuation = Continuation(resp.Continuation())
+		if resp.Continuation() != "" {
+			q.continuation = Continuation(resp.Continuation())
+		} else {
+			q.done = true
+		}
 	}
 	if q.offset == 0 {
 		opts := append(q.opts, q.limit)
@@ -46,8 +50,17 @@ func (q *PagableQuery) Next() error {
 			return err
 		}
 		q.offset = q.offset + 1
-		q.continuation = Continuation(resp.Continuation())
+		if resp.Continuation() != "" {
+			q.continuation = Continuation(resp.Continuation())
+		} else {
+			q.done = true
+		}
 		q.sessionToken = SessionToken(resp.SessionToken())
 	}
 	return nil
+}
+
+// Done - returns true if no more pages are available
+func (q *PagableQuery) Done() bool {
+	return q.done
 }

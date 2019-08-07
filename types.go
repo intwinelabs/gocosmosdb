@@ -133,4 +133,5 @@ type PagableQuery struct {
 	offset       int64
 	docs         interface{}
 	opts         []CallOption
+	done         bool
 }
