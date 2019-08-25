@@ -43,7 +43,7 @@ func ResourceRequest(link string, req *http.Request) *Request {
 // "x-ms-date", "x-ms-version", "authorization"
 func (req *Request) DefaultHeaders(mKey string) (err error) {
 	req.Header.Add(HeaderXDate, time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
-	req.Header.Add(HeaderVersion, SupportedVersion)
+	req.Header.Add(HeaderVersion, SupportedAPIVersion)
 	req.Header.Add(HeaderUserAgent, UserAgent)
 
 	// Auth
@@ -68,10 +68,9 @@ func (req *Request) DefaultHeaders(mKey string) (err error) {
 
 // Add headers for query request
 func (req *Request) QueryHeaders(len int) {
-	req.Header.Add(HeaderQueryVersion, QueryVersion)
 	req.Header.Add(HeaderContentType, "application/query+json")
 	req.Header.Add(HeaderIsQuery, "true")
-	req.Header.Add(HeaderContentLength, string(len))
+	req.Header.Add(HeaderContentLength, fmt.Sprintf("%d", len))
 }
 
 // Add headers for query metrics request

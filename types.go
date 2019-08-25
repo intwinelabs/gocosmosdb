@@ -1,11 +1,12 @@
 package gocosmosdb
 
 const (
-	// QueryVersion - The current query version supported.
-	QueryVersion = "1.4"
+	// SupportedQueryVersion - The current query version supported.
+	SupportedQueryVersion = "1.4"
 
 	// SupportedVersion - The current supported API version.
-	SupportedVersion = "2018-12-31"
+	SupportedAPIVersion            = "2018-12-31"
+	SupportedAPIVersionNoPartition = "2017-02-22"
 
 	// UserAgent - The current version of gocosmosdb.
 	UserAgent = "gocosmosdb/1.0"

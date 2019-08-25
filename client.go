@@ -54,8 +54,11 @@ func (c *apiClient) apply(r *Request, opts []CallOption) (err error) {
 	}
 
 	for i := 0; i < len(opts); i++ {
-		if err = opts[i](r); err != nil {
-			return err
+		// check to make sure someone did not pass nil ass a call option
+		if opts[i] != nil {
+			if err = opts[i](r); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -107,6 +110,11 @@ func (c *apiClient) query(link, query string, ret interface{}, opts ...CallOptio
 		return nil, err
 	}
 	r.QueryHeaders(buf.Len())
+	// revert version if collection is not partitioned
+	if c.config.PartitionKeyStructField == "" {
+		r.Header.Set(HeaderVersion, SupportedAPIVersionNoPartition)
+	}
+	// try the request and return if successful
 	return c.do(r, http.StatusOK, ret)
 }
 
@@ -130,6 +138,10 @@ func (c *apiClient) queryWithParameters(link string, query *QueryWithParameters,
 		return nil, err
 	}
 	r.QueryHeaders(buf.Len())
+	// revert version if collection is not partitioned
+	if c.config.PartitionKeyStructField == "" {
+		r.Header.Set(HeaderVersion, SupportedAPIVersionNoPartition)
+	}
 	return c.do(r, http.StatusOK, ret)
 }
 

@@ -189,3 +189,11 @@ func WithContext(ctx context.Context) CallOption {
 		return nil
 	}
 }
+
+// QueryVersion - add the query latest query version header
+func QueryVersion() CallOption {
+	return func(r *Request) error {
+		r.Header.Add(HeaderQueryVersion, SupportedQueryVersion)
+		return nil
+	}
+}

@@ -29,6 +29,7 @@ func TestCallOptions(t *testing.T) {
 	opts = append(opts, EnablePopulateQueryMetrics())
 	ctx := context.WithValue(context.Background(), "foo", "bar")
 	opts = append(opts, WithContext(ctx))
+	opts = append(opts, QueryVersion())
 
 	link := "http://localhost:8080"
 	req, err := http.NewRequest("POST", link, nil)
@@ -59,4 +60,5 @@ func TestCallOptions(t *testing.T) {
 	assert.Equal("true", r.Header.Get(HeaderParalelizeCrossPartition))
 	assert.Equal("true", r.Header.Get(HeaderPopulateQueryMetrics))
 	assert.Equal(ctx, r.rContext)
+	assert.Equal("1.4", r.Header.Get(HeaderQueryVersion))
 }
