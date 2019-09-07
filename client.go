@@ -235,6 +235,10 @@ func (c *apiClient) method(method, link string, status int, ret interface{}, bod
 	if err = c.apply(r, opts); err != nil {
 		return nil, err
 	}
+	// revert version if collection is not partitioned
+	if c.config.PartitionKeyStructField == "" {
+		r.Header.Set(HeaderVersion, SupportedAPIVersionNoPartition)
+	}
 	return c.do(r, status, ret)
 }
 
