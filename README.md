@@ -14,7 +14,7 @@
 
 #### Installation
 ```bash
-$ go get github.com/intwinelabs/gocosomsdb
+$ go get github.com/intwinelabs/gocosmosdb
 ```
 
 #### Example
